@@ -2,6 +2,8 @@
 
 MCP server suite for the [s&box](https://sbox.game) game engine. Connects AI coding assistants to the s&box editor — reading scenes, creating objects, compiling code, managing assets, and more.
 
+Designed following [Anthropic's MCP best practices](https://www.anthropic.com/engineering/writing-tools-for-agents): omnibus tools with action enums, rich descriptions with negative guidance, trimmed responses, actionable errors.
+
 *Arenula* — Latin for "grain of sand". One grain in the sandbox.
 
 ## Servers
@@ -112,8 +114,6 @@ Tools appear as `mcp__editor__*`, `mcp__api__*`, `mcp__docs__*` in your AI clien
 28 C# source files — 8 core infrastructure, 20 per-tool handlers.
 
 ![Architecture](architecture.png)
-
-Designed following [Anthropic's MCP best practices](https://www.anthropic.com/engineering/writing-tools-for-agents): omnibus tools with action enums, rich descriptions with negative guidance, trimmed responses, actionable errors, and `additionalProperties: false` on every schema.
 
 ## Attribution
 
