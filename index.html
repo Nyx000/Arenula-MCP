@@ -61,6 +61,7 @@
             justify-content: center;
             gap: 48px;
             margin-top: 36px;
+            flex-wrap: wrap;
         }
         .stat { text-align: center; }
         .stat .number {
@@ -296,6 +297,27 @@
             text-decoration: none;
         }
         .attribution a:hover { text-decoration: underline; }
+
+        /* Print / PDF styles */
+        @media print {
+            @page {
+                size: A4;
+                margin: 0;
+            }
+            body {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                background: var(--bg) !important;
+            }
+            .hero { padding: 40px 0 30px; }
+            section { padding: 30px 0; break-inside: avoid; }
+            .tool-row { break-inside: avoid; }
+            .server-card { break-inside: avoid; }
+            .principle { break-inside: avoid; }
+            table tr { break-inside: avoid; }
+            .arch { break-inside: avoid; }
+            .attribution { padding: 20px 0; }
+        }
 
         @media (max-width: 768px) {
             .servers { grid-template-columns: 1fr; }
