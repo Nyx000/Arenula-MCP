@@ -21,7 +21,7 @@ async function main() {
 
   // Create MCP server
   const server = new McpServer({
-    name: 'sbox-api',
+    name: 'Arenula API',
     version: '1.0.0',
   })
 

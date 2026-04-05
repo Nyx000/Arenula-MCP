@@ -8,8 +8,8 @@ import { getPage } from './tools/get-page.js'
 import { getApiType } from './tools/get-api-type.js'
 
 const server = new McpServer({
-  name: 'sbox-docs-mcp',
-  version: '0.1.0',
+  name: 'Arenula Docs',
+  version: '1.0.0',
 })
 
 server.tool(
