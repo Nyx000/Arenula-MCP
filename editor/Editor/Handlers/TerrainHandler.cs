@@ -249,7 +249,7 @@ internal static class TerrainHandler
 
         // Also sync GPU back to CPU for saving
         terrain.SyncCPUTexture(
-            Terrain.SyncFlags.HeightMap | Terrain.SyncFlags.ControlMap,
+            Terrain.SyncFlags.Height | Terrain.SyncFlags.Control,
             default );
 
         // Update materials buffer
