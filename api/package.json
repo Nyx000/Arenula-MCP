@@ -1,0 +1,39 @@
+{
+  "name": "arenula-api",
+  "version": "1.0.0",
+  "description": "Arenula API — offline s&box type/member reference for AI coding assistants. Part of the Arenula MCP suite. Based on sbox-api-mcp by sofianebel.",
+  "type": "module",
+  "bin": {
+    "arenula-api": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts"
+  },
+  "keywords": [
+    "mcp",
+    "arenula",
+    "sbox",
+    "sandbox",
+    "game-engine",
+    "api",
+    "claude",
+    "claude-code"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "fuse.js": "^7.1.0",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  }
+}

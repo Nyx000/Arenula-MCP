@@ -5,15 +5,15 @@
       "url": "http://localhost:8098/sse"
     },
     "api": {
-      "command": "npx",
-      "args": ["-y", "sbox-api-mcp"],
+      "command": "node",
+      "args": ["path/to/Arenula-MCP/api/dist/index.js"],
       "env": {
         "SBOX_API_URL": "https://cdn.sbox.game/releases/2026-04-02-21-06-53.zip.json"
       }
     },
     "docs": {
       "command": "node",
-      "args": ["path/to/sbox-docs-mcp/dist/index.js"]
+      "args": ["path/to/Arenula-MCP/docs/dist/index.js"]
     }
   }
 }
