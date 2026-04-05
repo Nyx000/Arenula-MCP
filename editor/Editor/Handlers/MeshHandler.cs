@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using Editor;
 using Sandbox;
 using Sandbox.Clutter;
+using HalfEdgeMesh;
 
 namespace Arenula;
 
