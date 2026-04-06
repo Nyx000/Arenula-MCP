@@ -276,8 +276,7 @@ internal static class MeshHandler
         Vector2 scale;
         if ( scaleStr != null )
         {
-            var sv = HandlerBase.ParseVector3( scaleStr );
-            scale = new Vector2( sv.x, sv.y );
+            scale = HandlerBase.ParseVector2( scaleStr );
         }
         else
         {

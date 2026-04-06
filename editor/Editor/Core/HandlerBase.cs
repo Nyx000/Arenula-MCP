@@ -167,6 +167,13 @@ internal static class HandlerBase
         return new Vector3( float.Parse( parts[0].Trim() ), float.Parse( parts[1].Trim() ), float.Parse( parts[2].Trim() ) );
     }
 
+    internal static Vector2 ParseVector2( string s )
+    {
+        var parts = s.Split( ',' );
+        if ( parts.Length != 2 ) throw new ArgumentException( $"Expected 'u,v' format, got '{s}'" );
+        return new Vector2( float.Parse( parts[0].Trim() ), float.Parse( parts[1].Trim() ) );
+    }
+
     // ── Write confirmation ─────────────────────────────────────────────
 
     /// <summary>Standard write confirmation with ID tuple and message.</summary>

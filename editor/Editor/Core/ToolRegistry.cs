@@ -274,7 +274,7 @@ internal static class ToolRegistry
             properties = new Dictionary<string, object>
             {
                 ["action"] = new { type = "string", description = "The operation to perform.", @enum = new[] { "create", "configure", "create_skybox", "set_skybox" } },
-                ["id"] = new { type = "string", description = "Light GameObject GUID. Required for: configure." },
+                ["id"] = new { type = "string", description = "Light GameObject GUID. Required for: configure. Optional for: set_skybox (auto-finds if omitted)." },
                 ["type"] = new { type = "string", description = "Light type. Required for: create.", @enum = new[] { "point", "spot", "ambient", "environment", "indirect_volume" } },
                 ["position"] = new { type = "string", description = "Position as 'x,y,z'. Used by: create." },
                 ["color"] = new { type = "string", description = "Color as 'r,g,b' (0-255). Used by: create, configure." },

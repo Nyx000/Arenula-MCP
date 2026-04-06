@@ -61,7 +61,10 @@ internal static class AssetQueryHandler
             if ( !string.IsNullOrEmpty( directory ) )
             {
                 var aPath = asset.Path ?? "";
-                if ( !aPath.StartsWith( directory, StringComparison.OrdinalIgnoreCase ) )
+                var dir = directory.TrimStart( '/' );
+                if ( dir.Length == 0 || aPath.StartsWith( dir, StringComparison.OrdinalIgnoreCase ) )
+                    { /* matches root or prefix */ }
+                else
                     continue;
             }
             all.Add( asset );

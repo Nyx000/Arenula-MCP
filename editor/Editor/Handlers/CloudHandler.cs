@@ -120,14 +120,12 @@ internal static class CloudHandler
         if ( pkg == null )
             return HandlerBase.Error( $"Package '{ident}' not found.", "mount" );
 
-        // Mount the package — makes assets available to the editor
+        // Mount and add to .sbproj — both require main thread
+        await GameTask.MainThread();
         await pkg.MountAsync();
 
         // Add to .sbproj PackageReferences for persistence across restarts
-        // This requires main thread for file I/O, use GameTask
-        bool added = false;
-        await GameTask.MainThread();
-        added = AddPackageReference( ident );
+        bool added = AddPackageReference( ident );
 
         var status = added
             ? "Mounted and added to .sbproj PackageReferences."

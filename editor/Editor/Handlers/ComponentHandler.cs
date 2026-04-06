@@ -273,6 +273,12 @@ internal static class ComponentHandler
             }
         }
 
+        if ( targetType == typeof( Color ) )
+        {
+            var str = el.ValueKind == JsonValueKind.String ? el.GetString() : el.GetRawText();
+            return Color.Parse( str ) ?? default;
+        }
+
         if ( targetType.IsEnum )
         {
             var str = el.ValueKind == JsonValueKind.String ? el.GetString() : el.GetRawText();

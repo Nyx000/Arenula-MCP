@@ -423,14 +423,26 @@ internal static class LightingHandler
         if ( scene == null )
             return HandlerBase.Error( "No active scene.", "set_skybox" );
 
+        SkyBox2D sky = null;
         var id = HandlerBase.GetString( args, "id" );
-        if ( string.IsNullOrEmpty( id ) )
-            return HandlerBase.Error( "Missing required 'id' parameter.", "set_skybox" );
-
-        var go = SceneHelpers.FindByIdOrThrow( scene, id, "set_skybox" );
-        var sky = go.Components.GetAll().FirstOrDefault( c => c is SkyBox2D ) as SkyBox2D;
-        if ( sky == null )
-            return HandlerBase.Error( $"No SkyBox2D component found on '{go.Name}'.", "set_skybox" );
+        if ( !string.IsNullOrEmpty( id ) )
+        {
+            var go = SceneHelpers.FindByIdOrThrow( scene, id, "set_skybox" );
+            sky = go.Components.GetAll().FirstOrDefault( c => c is SkyBox2D ) as SkyBox2D;
+            if ( sky == null )
+                return HandlerBase.Error( $"No SkyBox2D component found on '{go.Name}'.", "set_skybox" );
+        }
+        else
+        {
+            // Auto-find the first SkyBox2D in the scene
+            foreach ( var go in SceneHelpers.WalkAll( scene, true ) )
+            {
+                sky = go.Components.GetAll().FirstOrDefault( c => c is SkyBox2D ) as SkyBox2D;
+                if ( sky != null ) break;
+            }
+            if ( sky == null )
+                return HandlerBase.Error( "No SkyBox2D found in scene. Provide 'id' or add a SkyBox2D component.", "set_skybox" );
+        }
 
         var matStr = HandlerBase.GetString( args, "material" );
         if ( !string.IsNullOrEmpty( matStr ) )
