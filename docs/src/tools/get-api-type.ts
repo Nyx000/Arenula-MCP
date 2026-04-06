@@ -34,18 +34,25 @@ export async function getApiType(params: GetApiTypeParams): Promise<string> {
     const filtered: string[] = []
     let inMethodSection = false
     let inPropertySection = false
+    let inCodeBlock = false
 
     for (const line of lines) {
-      const lower = line.toLowerCase()
-      if (lower.includes('## method') || lower.includes('### method')) {
-        inMethodSection = true
-        inPropertySection = false
-      } else if (lower.includes('## propert') || lower.includes('### propert')) {
-        inPropertySection = true
-        inMethodSection = false
-      } else if (line.startsWith('## ') || line.startsWith('### ')) {
-        inMethodSection = false
-        inPropertySection = false
+      // Track fenced code blocks to avoid matching headings inside them
+      if (line.startsWith('```')) {
+        inCodeBlock = !inCodeBlock
+      }
+
+      if (!inCodeBlock && /^#{2,3}\s/i.test(line)) {
+        if (/^#{2,3}\s+methods?\b/i.test(line)) {
+          inMethodSection = true
+          inPropertySection = false
+        } else if (/^#{2,3}\s+propert(y|ies)\b/i.test(line)) {
+          inPropertySection = true
+          inMethodSection = false
+        } else {
+          inMethodSection = false
+          inPropertySection = false
+        }
       }
 
       const skip =
