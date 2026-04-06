@@ -215,44 +215,52 @@ internal static class PrefabHandler
 
         var go = SceneHelpers.FindByIdOrThrow( scene, id, "create" );
 
-        // Serialize the GameObject to a prefab JSON file.
-        // s&box prefabs are .prefab files containing serialized GameObject JSON.
-        // Use SceneUtility to serialize the object, then write to disk.
-        var json = go.Serialize().ToString();
-        var fullPath = savePath;
-
         // Ensure the path ends with .prefab
-        if ( !fullPath.EndsWith( ".prefab", StringComparison.OrdinalIgnoreCase ) )
-            fullPath += ".prefab";
+        if ( !savePath.EndsWith( ".prefab", StringComparison.OrdinalIgnoreCase ) )
+            savePath += ".prefab";
 
-        // Write to project directory via Editor.FileSystem
-        // Research note: if Editor.FileSystem.Root is not available,
-        // fall back to AssetSystem path resolution
         try
         {
-            // Try writing via the asset system's base path
-            var projectDir = System.IO.Path.GetDirectoryName(
-                Editor.EditorUtility.Projects.GetAll()?.FirstOrDefault()?.GetRootPath() ?? "" );
+            // Resolve to absolute path if relative
+            var absPath = savePath;
+            if ( !System.IO.Path.IsPathRooted( absPath ) )
+            {
+                // Resolve project root from an existing asset's absolute path
+                var anyAsset = AssetSystem.All.FirstOrDefault();
+                if ( anyAsset == null )
+                    return HandlerBase.Error( "No assets found — cannot determine project root.", "create" );
 
-            // Fallback: use the asset system to find base path
-            // Write relative to project root
-            var dir = System.IO.Path.GetDirectoryName( fullPath );
+                var projectRoot = "";
+                var relativePart = anyAsset.Path;
+                if ( anyAsset.AbsolutePath.EndsWith( relativePart.Replace( '/', System.IO.Path.DirectorySeparatorChar ) ) )
+                    projectRoot = anyAsset.AbsolutePath[..^relativePart.Length].TrimEnd( System.IO.Path.DirectorySeparatorChar, '/' );
+
+                if ( string.IsNullOrEmpty( projectRoot ) )
+                    return HandlerBase.Error( "Could not determine project root directory.", "create" );
+
+                absPath = System.IO.Path.Combine( projectRoot, savePath.Replace( '/', System.IO.Path.DirectorySeparatorChar ) );
+            }
+
+            // Ensure directory exists
+            var dir = System.IO.Path.GetDirectoryName( absPath );
             if ( !string.IsNullOrEmpty( dir ) && !System.IO.Directory.Exists( dir ) )
                 System.IO.Directory.CreateDirectory( dir );
 
-            System.IO.File.WriteAllText( fullPath, json );
+            // Use the engine's ConvertGameObjectToPrefab API.
+            // This handles all GameObject types including mesh blocks,
+            // writes the prefab to disk, and sets the prefab source on the GO.
+            EditorUtility.Prefabs.ConvertGameObjectToPrefab( go, absPath );
 
             return HandlerBase.Success( new
             {
                 message = $"Created prefab from '{go.Name}'.",
-                path = fullPath,
+                path = savePath,
                 sourceId = go.Id.ToString()
             } );
         }
         catch ( Exception ex )
         {
-            return HandlerBase.Error( $"Failed to write prefab file: {ex.Message}", "create",
-                "Ensure the save_path is a valid relative path under the project (e.g. 'prefabs/my_thing.prefab')." );
+            return HandlerBase.Error( $"Failed to create prefab: {ex.Message}", "create" );
         }
     }
 
