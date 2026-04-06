@@ -77,12 +77,24 @@ export function search(query: string, limit = 10): SearchResult[] {
   const results = index.search(query).slice(0, limit)
   return results.map(r => {
     const content = (r as unknown as { content: string }).content || ''
-    // Extract a snippet around the first match
+
+    // Try each query word to find the best snippet anchor
     const lowerContent = content.toLowerCase()
-    const lowerQuery = query.toLowerCase().split(/\s+/)[0] || ''
-    const matchIdx = lowerContent.indexOf(lowerQuery)
-    const snippetStart = Math.max(0, matchIdx - 50)
-    const snippet = content.slice(snippetStart, snippetStart + 200).trim()
+    const queryWords = query.toLowerCase().split(/\s+/).filter(Boolean)
+    let matchIdx = -1
+    for (const word of queryWords) {
+      matchIdx = lowerContent.indexOf(word)
+      if (matchIdx !== -1) break
+    }
+
+    let snippet: string
+    if (matchIdx !== -1) {
+      const snippetStart = Math.max(0, matchIdx - 50)
+      snippet = content.slice(snippetStart, snippetStart + 200).trim()
+    } else {
+      // No match in content — use the beginning as a fallback
+      snippet = content.slice(0, 200).trim()
+    }
 
     return {
       title: r.title as string,
