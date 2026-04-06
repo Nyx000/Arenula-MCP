@@ -2,12 +2,31 @@
   "name": "arenula-mcp",
   "version": "1.0.0",
   "private": true,
-  "description": "MCP server suite for the s&box game engine",
+  "description": "MCP server suite for the s&box game engine — editor control, API reference, and documentation",
   "scripts": {
     "build": "npm run build --prefix api && npm run build --prefix docs",
     "install-all": "npm install --prefix api && npm install --prefix docs",
     "setup": "npm run install-all && npm run build"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Nyx000/Arenula-MCP.git"
+  },
+  "homepage": "https://github.com/Nyx000/Arenula-MCP",
+  "bugs": "https://github.com/Nyx000/Arenula-MCP/issues",
+  "author": "Nyx000",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "sbox",
+    "s&box",
+    "facepunch",
+    "game-engine",
+    "source2",
+    "claude",
+    "claude-code",
+    "ai-tools"
+  ],
   "license": "SEE LICENSE IN api/LICENSE, docs/LICENSE, editor/LICENSE",
   "devDependencies": {
     "puppeteer": "^24.40.0"
