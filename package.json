@@ -8,7 +8,7 @@
     "install-all": "npm install --prefix api && npm install --prefix docs",
     "setup": "npm run install-all && npm run build"
   },
-  "license": "GPL-3.0",
+  "license": "SEE LICENSE IN api/LICENSE, docs/LICENSE, editor/LICENSE",
   "devDependencies": {
     "puppeteer": "^24.40.0"
   }
