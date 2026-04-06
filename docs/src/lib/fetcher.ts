@@ -29,7 +29,7 @@ export async function fetchPage(url: string): Promise<FetchResult> {
   const $ = cheerio.load(html)
 
   // Remove non-content elements
-  $('nav, .sidebar, footer, .header, .nav, script, style, .breadcrumb, .toc').remove()
+  $('nav, .sidebar, footer, .header, .nav, script, style, .breadcrumb, .toc, .menu, .toolbar, .pagination, iframe, noscript').remove()
 
   const title = $('h1').first().text().trim() || $('title').text().trim() || 'Untitled'
 
@@ -48,6 +48,10 @@ export async function fetchPage(url: string): Promise<FetchResult> {
   }
 
   const markdown = turndown.turndown(rawHtml).trim()
+  if (!markdown) {
+    throw new Error(`No content extracted from ${url}`)
+  }
+
   return { title, markdown, url }
 }
 
