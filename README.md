@@ -87,7 +87,7 @@ Tools appear as `mcp__editor__*`, `mcp__api__*`, `mcp__docs__*` in your AI clien
 
 ## Editor Tools
 
-19 omnibus tools, ~120 actions. Each tool takes a required `action` parameter.
+19 omnibus tools, ~134 actions. Each tool takes a required `action` parameter.
 
 | Tool | Actions | Count |
 |------|---------|-------|
@@ -98,7 +98,7 @@ Tools appear as `mcp__editor__*`, `mcp__api__*`, `mcp__docs__*` in your AI clien
 | **prefab** | instantiate, get_structure, get_instances, break, update, create, save_overrides, revert, get_overrides | 9 |
 | **asset_query** | browse, search, open, get_dependencies, get_model_info, get_material_properties, get_mesh_info, get_bounds, get_unsaved, get_status, get_json, get_references | 12 |
 | **asset_manage** | create, delete, rename, move, save, reload, get_references | 7 |
-| **editor** | select, get/set_selected, clear/frame_selection, play controls, save, undo/redo, console, preferences | 18 |
+| **editor** | select, get/set_selected, clear/frame_selection, play controls, save, undo/redo, console, preferences, open_code_file, get_log | 18 |
 | **session** | list, set_active, load_scene | 3 |
 | **lighting** | create, configure, create_skybox, set_skybox | 4 |
 | **physics** | add_collider, configure_collider, add_rigidbody, create_model_physics, create_character_controller, create_joint | 6 |
@@ -109,7 +109,7 @@ Tools appear as `mcp__editor__*`, `mcp__api__*`, `mcp__docs__*` in your AI clien
 | **navmesh** | create_agent, create_area, create_link, generate, get_status, query_path | 6 |
 | **cloud** | search, get_package, mount | 3 |
 | **project** | get_collision, set_collision_rule, get_input, get_info | 4 |
-| **terrain** | create, configure, get_info, paint_material, sync | 5 |
+| **terrain** | create, configure, get_info, get_height, get_height_region, set_height, noise, erode, stamp, add/remove_material, get_material_at, blend_materials, set_hole, paint_material, import/export_heightmap, sync | 18 |
 
 ## Architecture
 
