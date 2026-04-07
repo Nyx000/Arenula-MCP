@@ -25,10 +25,11 @@ internal static class TerrainHandler
             "create"         => Create( scene, args ),
             "configure"      => Configure( scene, args ),
             "get_info"       => GetInfo( scene, args ),
+            "add_material"   => AddMaterial( scene, args ),
             "paint_material" => PaintMaterial( scene, args ),
             "sync"           => Sync( scene, args ),
             _                => HandlerBase.Error( $"Unknown action '{action}' for tool 'terrain'.", action,
-                                    "Valid actions: create, configure, get_info, paint_material, sync" )
+                                    "Valid actions: create, configure, get_info, add_material, paint_material, sync" )
         };
     }
 
@@ -132,6 +133,55 @@ internal static class TerrainHandler
             hasHeightMap = terrain.HeightMap != null,
             hasControlMap = terrain.ControlMap != null,
             position = HandlerBase.V3( terrain.GameObject.WorldPosition )
+        } );
+    }
+
+    // ── add_material ────────────────────────────────────────────────
+
+    private static object AddMaterial( Scene scene, JsonElement args )
+    {
+        var terrain = FindTerrain( scene, args, "add_material" );
+
+        var materialPath = HandlerBase.GetString( args, "material_path" );
+
+        TerrainMaterial terrainMat = null;
+
+        if ( !string.IsNullOrEmpty( materialPath ) )
+        {
+            terrainMat = ResourceLibrary.Get<TerrainMaterial>( materialPath );
+            if ( terrainMat == null )
+                return HandlerBase.Error( $"Terrain material not found: '{materialPath}'.", "add_material",
+                    "Provide a valid .terrain_material asset path, or omit to use the first available." );
+        }
+        else
+        {
+            // No path given — find the first available terrain material
+            terrainMat = ResourceLibrary.GetAll<TerrainMaterial>().FirstOrDefault();
+            if ( terrainMat == null )
+                return HandlerBase.Error( "No terrain materials available in the project.", "add_material",
+                    "Import or create a .terrain_material asset first." );
+        }
+
+        // Check if already present
+        if ( terrain.Storage.Materials.Contains( terrainMat ) )
+            return HandlerBase.Success( new
+            {
+                id = terrain.GameObject.Id.ToString(),
+                materialIndex = terrain.Storage.Materials.IndexOf( terrainMat ),
+                materialCount = terrain.Storage.Materials.Count,
+                materialName = terrainMat.ResourceName ?? "(unnamed)",
+                message = $"Material already present in terrain."
+            } );
+
+        terrain.Storage.Materials.Add( terrainMat );
+
+        return HandlerBase.Success( new
+        {
+            id = terrain.GameObject.Id.ToString(),
+            materialIndex = terrain.Storage.Materials.Count - 1,
+            materialCount = terrain.Storage.Materials.Count,
+            materialName = terrainMat.ResourceName ?? "(unnamed)",
+            message = $"Added terrain material '{terrainMat.ResourceName}'."
         } );
     }
 

@@ -68,69 +68,43 @@ internal static class MeshHandler
 
         var material = MaterialHelper.LoadMaterialOrDefault( materialPath );
 
-        var boxMins = new Vector3( -size.x / 2f, -size.y / 2f, -size.z / 2f );
-        var boxMaxs = new Vector3( size.x / 2f, size.y / 2f, size.z / 2f );
+        var hx = size.x / 2f;
+        var hy = size.y / 2f;
+        var hz = size.z / 2f;
 
-        // Create vertices for a cube (winding matches s&box BlockPrimitive)
-        var vertices = new List<Vector3>
-        {
-            // Front face (z = maxs.z, normal +Z)
-            new( boxMins.x, boxMins.y, boxMaxs.z ),
-            new( boxMaxs.x, boxMins.y, boxMaxs.z ),
-            new( boxMaxs.x, boxMaxs.y, boxMaxs.z ),
-            new( boxMins.x, boxMaxs.y, boxMaxs.z ),
-            // Back face (z = mins.z, normal -Z)
-            new( boxMins.x, boxMaxs.y, boxMins.z ),
-            new( boxMaxs.x, boxMaxs.y, boxMins.z ),
-            new( boxMaxs.x, boxMins.y, boxMins.z ),
-            new( boxMins.x, boxMins.y, boxMins.z ),
-            // Top face (y = maxs.y, normal +Y)
-            new( boxMaxs.x, boxMaxs.y, boxMins.z ),
-            new( boxMins.x, boxMaxs.y, boxMins.z ),
-            new( boxMins.x, boxMaxs.y, boxMaxs.z ),
-            new( boxMaxs.x, boxMaxs.y, boxMaxs.z ),
-            // Bottom face (y = mins.y, normal -Y)
-            new( boxMaxs.x, boxMins.y, boxMaxs.z ),
-            new( boxMins.x, boxMins.y, boxMaxs.z ),
-            new( boxMins.x, boxMins.y, boxMins.z ),
-            new( boxMaxs.x, boxMins.y, boxMins.z ),
-            // Right face (x = maxs.x, normal +X)
-            new( boxMaxs.x, boxMaxs.y, boxMaxs.z ),
-            new( boxMaxs.x, boxMins.y, boxMaxs.z ),
-            new( boxMaxs.x, boxMins.y, boxMins.z ),
-            new( boxMaxs.x, boxMaxs.y, boxMins.z ),
-            // Left face (x = mins.x, normal -X)
-            new( boxMins.x, boxMaxs.y, boxMins.z ),
-            new( boxMins.x, boxMins.y, boxMins.z ),
-            new( boxMins.x, boxMins.y, boxMaxs.z ),
-            new( boxMins.x, boxMaxs.y, boxMaxs.z )
-        };
-
+        // 8 shared vertices — required for valid half-edge mesh topology
         var mesh = new PolygonMesh();
-        var hVertices = mesh.AddVertices( vertices.ToArray() );
-
-        var faceDefinitions = new[]
+        var v = mesh.AddVertices( new Vector3[]
         {
-            new[] { 0, 1, 2, 3 },     // Front
-            new[] { 4, 5, 6, 7 },     // Back
-            new[] { 8, 9, 10, 11 },   // Top
-            new[] { 12, 13, 14, 15 }, // Bottom
-            new[] { 16, 17, 18, 19 }, // Right
-            new[] { 20, 21, 22, 23 }  // Left
+            new( -hx, -hy, -hz ), // 0: left-front-bottom
+            new(  hx, -hy, -hz ), // 1: right-front-bottom
+            new(  hx,  hy, -hz ), // 2: right-back-bottom
+            new( -hx,  hy, -hz ), // 3: left-back-bottom
+            new( -hx, -hy,  hz ), // 4: left-front-top
+            new(  hx, -hy,  hz ), // 5: right-front-top
+            new(  hx,  hy,  hz ), // 6: right-back-top
+            new( -hx,  hy,  hz ), // 7: left-back-top
+        } );
+
+        // 6 quad faces with outward-facing winding (CCW from outside)
+        var faceIndices = new[]
+        {
+            new[] { 4, 5, 6, 7 }, // Top (+Z)
+            new[] { 3, 2, 1, 0 }, // Bottom (-Z)
+            new[] { 4, 5, 1, 0 }, // Front (-Y)
+            new[] { 7, 6, 2, 3 }, // Back (+Y)
+            new[] { 5, 6, 2, 1 }, // Right (+X)
+            new[] { 4, 7, 3, 0 }, // Left (-X)
         };
 
         var hFaces = new List<FaceHandle>();
-        foreach ( var faceIndices in faceDefinitions )
+        foreach ( var fi in faceIndices )
         {
-            var faceVerts = faceIndices.Select( i => hVertices[i] ).ToArray();
-            var hFace = mesh.AddFace( faceVerts );
+            var hFace = mesh.AddFace( new[] { v[fi[0]], v[fi[1]], v[fi[2]], v[fi[3]] } );
+            mesh.SetFaceMaterial( hFace, material );
             hFaces.Add( hFace );
         }
 
-        foreach ( var hFace in hFaces )
-            mesh.SetFaceMaterial( hFace, material );
-
-        mesh.TextureAlignToGrid( mesh.Transform );
         mesh.SetSmoothingAngle( 40.0f );
 
         var meshComponent = gameObject.Components.Create<MeshComponent>();
@@ -148,7 +122,7 @@ internal static class MeshHandler
             name = gameObject.Name,
             position = HandlerBase.V3( gameObject.WorldPosition ),
             face_count = hFaces.Count,
-            vertex_count = hVertices.Length,
+            vertex_count = 8,
             material = materialPath
         } );
     }

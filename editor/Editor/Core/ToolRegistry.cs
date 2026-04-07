@@ -495,13 +495,14 @@ internal static class ToolRegistry
             type = "object",
             properties = new Dictionary<string, object>
             {
-                ["action"] = new { type = "string", description = "The operation to perform.", @enum = new[] { "create", "configure", "get_info", "paint_material", "sync" } },
-                ["id"] = new { type = "string", description = "Terrain GameObject GUID. Required for: configure, get_info, paint_material, sync." },
+                ["action"] = new { type = "string", description = "The operation to perform.", @enum = new[] { "create", "configure", "get_info", "add_material", "paint_material", "sync" } },
+                ["id"] = new { type = "string", description = "Terrain GameObject GUID. Required for: configure, get_info, add_material, paint_material, sync." },
                 ["size"] = new { type = "number", description = "Terrain world size. Used by: create." },
                 ["height"] = new { type = "number", description = "Terrain max height. Used by: create." },
                 ["resolution"] = new { type = "integer", description = "Heightmap resolution. Used by: create." },
                 ["position"] = new { type = "string", description = "World position as 'x,y,z'. Required for: paint_material." },
                 ["material"] = new { type = "string", description = "Terrain material path. Required for: paint_material." },
+                ["material_path"] = new { type = "string", description = "Path to a .terrain_material asset. Used by: add_material. Omit to auto-select the first available." },
                 ["radius"] = new { type = "number", description = "Brush radius. Used by: paint_material." },
                 ["strength"] = new { type = "number", description = "Brush strength 0-1. Used by: paint_material." },
                 ["lod_levels"] = new { type = "integer", description = "LOD level count. Used by: configure." },

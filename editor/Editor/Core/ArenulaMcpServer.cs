@@ -88,6 +88,22 @@ public static class ArenulaMcpServer
         WriteIndented          = false
     };
 
+    // ── Global log capture ────────────────────────────────────────────────
+    private static bool _loggerHooked;
+
+    private static void OnGlobalLog( LogEvent e )
+    {
+        var prefix = e.Level switch
+        {
+            LogLevel.Error   => "[ERROR] ",
+            LogLevel.Warn    => "[WARNING] ",
+            LogLevel.Trace   => "[TRACE] ",
+            _                => ""
+        };
+        var logger = string.IsNullOrEmpty( e.Logger ) ? "" : $"{e.Logger} ";
+        EditorHandler.AppendLog( $"{e.Time:HH:mm:ss} {logger}{prefix}{e.Message}" );
+    }
+
     // ── Lifecycle ──────────────────────────────────────────────────────────
 
     public static void StartServer()
@@ -100,6 +116,13 @@ public static class ArenulaMcpServer
 
         try
         {
+            // Hook into the global editor log stream
+            if ( !_loggerHooked )
+            {
+                EditorUtility.AddLogger( OnGlobalLog );
+                _loggerHooked = true;
+            }
+
             _listener = new HttpListener();
             _listener.Prefixes.Add( $"http://localhost:{Port}/" );
             _listener.Prefixes.Add( $"http://127.0.0.1:{Port}/" );
@@ -121,6 +144,13 @@ public static class ArenulaMcpServer
     {
         try
         {
+            // Unhook the global logger
+            if ( _loggerHooked )
+            {
+                EditorUtility.RemoveLogger( OnGlobalLog );
+                _loggerHooked = false;
+            }
+
             _cts?.Cancel();
 
             try { _listener?.Stop(); } catch { }

@@ -20,7 +20,7 @@ internal static class EditorHandler
 {
     // Circular log buffer for editor log capture
     private static readonly System.Collections.Concurrent.ConcurrentQueue<string> _log = new();
-    private const int MaxLogLines = 500;
+    private const int MaxLogLines = 2000;
 
     /// <summary>Called by the MCP server to capture log output.</summary>
     internal static void AppendLog( string msg )

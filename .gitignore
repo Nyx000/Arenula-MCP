@@ -6,3 +6,6 @@ Thumbs.db
 .env
 .env.local
 .mcp.json
+editor/Editor/arenula_mcp.editor.csproj
+editor/Editor/Properties/launchSettings.json
+test/

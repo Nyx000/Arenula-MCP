@@ -217,20 +217,8 @@ internal static class AssetQueryHandler
             var attObj = model.Attachments;
             if ( attObj != null )
             {
-                var countProp = attObj.GetType().GetProperty( "Count" )
-                             ?? attObj.GetType().GetProperty( "Length" );
-                int count = countProp != null ? (int)countProp.GetValue( attObj ) : 0;
-                var indexer = attObj.GetType().GetProperty( "Item" );
-                for ( int i = 0; i < count; i++ )
-                {
-                    try
-                    {
-                        var att = indexer?.GetValue( attObj, new object[] { i } );
-                        var attName = att?.GetType().GetProperty( "Name" )?.GetValue( att )?.ToString() ?? $"att_{i}";
-                        attachments.Add( new { name = attName, index = i } );
-                    }
-                    catch { attachments.Add( new { index = i } ); }
-                }
+                foreach ( var att in attObj.All )
+                    attachments.Add( new { name = att.Name, index = att.Index } );
             }
         }
         catch { }
@@ -281,10 +269,11 @@ internal static class AssetQueryHandler
 
         var go = SceneHelpers.FindByIdOrThrow( scene, id, "get_mesh_info" );
 
-        // Look for EditorMeshComponent which has a PolygonMesh property
+        // Look for EditorMeshComponent or MeshComponent which has a PolygonMesh/Mesh property
         var meshComp = go.Components.GetAll()
             .FirstOrDefault( c => c.GetType().Name.Contains( "EditorMeshComponent" )
-                               || c.GetType().Name.Contains( "PolygonMesh" ) );
+                               || c.GetType().Name.Contains( "PolygonMesh" )
+                               || c.GetType().Name == "MeshComponent" );
 
         if ( meshComp == null )
         {

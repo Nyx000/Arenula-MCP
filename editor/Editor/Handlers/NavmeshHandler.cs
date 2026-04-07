@@ -283,6 +283,10 @@ internal static class NavmeshHandler
                 status = result.Status.ToString()
             } );
         }
+        catch ( NullReferenceException )
+        {
+            return HandlerBase.Error( "No navmesh data available. Ensure the scene has walkable geometry (e.g. a ground mesh with collider) and run navmesh.generate first.", "query_path" );
+        }
         catch ( Exception ex )
         {
             return HandlerBase.Error( $"Path query failed: {ex.Message}", "query_path" );

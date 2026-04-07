@@ -64,27 +64,31 @@ internal static class PrefabHandler
                              HandlerBase.ParseVector3( rotStr ).z )
             : Rotation.Identity;
 
-        var asset = AssetSystem.FindByPath( path );
-
-        // Fallback: try registering from disk if not yet indexed
-        if ( asset == null )
-        {
-            var absPath = HandlerBase.ResolveProjectPath( path );
-            if ( !string.IsNullOrEmpty( absPath ) && System.IO.File.Exists( absPath ) )
-                asset = AssetSystem.RegisterFile( absPath );
-        }
-
-        if ( asset == null )
-            return HandlerBase.Error( $"Asset not found: '{path}'. Use asset_query.search with type 'prefab' to find valid paths.", "instantiate" );
-
         var prefabFile = ResourceLibrary.Get<PrefabFile>( path );
         if ( prefabFile == null )
-            return HandlerBase.Error( $"Could not load prefab: '{path}'.", "instantiate" );
+        {
+            // Fallback: try registering from disk if not yet indexed
+            var absPath = HandlerBase.ResolveProjectPath( path );
+            if ( !string.IsNullOrEmpty( absPath ) && System.IO.File.Exists( absPath ) )
+                AssetSystem.RegisterFile( absPath );
+            prefabFile = ResourceLibrary.Get<PrefabFile>( path );
+        }
 
+        if ( prefabFile == null )
+            return HandlerBase.Error( $"Prefab not found: '{path}'. Use asset_query.search with type 'prefab' to find valid paths.", "instantiate" );
+
+        // Serialize the prefab, then deserialize into the active scene
         var prefabScene = SceneUtility.GetPrefabScene( prefabFile );
-        var go = prefabScene.Clone();
+        var json = prefabScene.Serialize();
+        var go = scene.CreateObject();
+        go.Deserialize( json );
         go.WorldPosition = position;
         go.WorldRotation = rotation;
+
+        // Mark as a prefab instance so update/revert/overrides work
+#pragma warning disable CS0618
+        go.SetPrefabSource( path );
+#pragma warning restore CS0618
 
         return HandlerBase.Success( new
         {
@@ -248,9 +252,8 @@ internal static class PrefabHandler
             };
             System.IO.File.WriteAllText( absPath, prefabJson.ToJsonString() );
 
-            // Register and compile the new file with the asset system
+            // Register the new file with the asset system
             AssetSystem.RegisterFile( absPath );
-            AssetSystem.CompileResource( savePath, System.IO.File.ReadAllText( absPath ) );
 
             return HandlerBase.Success( new
             {
