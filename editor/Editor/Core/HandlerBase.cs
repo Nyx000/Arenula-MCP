@@ -189,15 +189,14 @@ internal static class HandlerBase
     // ── Project root resolution ───────────────────────────────────────
 
     /// <summary>
-    /// Resolve the project root directory using Editor.FileSystem.Libraries.
+    /// Resolve the project root directory via the current project API.
     /// Returns null if it cannot be determined.
     /// </summary>
     internal static string GetProjectRoot()
     {
         try
         {
-            var libPath = Editor.FileSystem.Libraries.GetFullPath( "" );
-            return System.IO.Path.GetDirectoryName( libPath );
+            return Project.Current?.GetRootPath();
         }
         catch { return null; }
     }

@@ -169,16 +169,5 @@ internal static class CloudHandler
         catch { return false; }
     }
 
-    private static string FindProjectRoot()
-    {
-        try
-        {
-            var libPath = Editor.FileSystem.Libraries.GetFullPath( "" );
-            return Path.GetDirectoryName( libPath );
-        }
-        catch
-        {
-            return null;
-        }
-    }
+    private static string FindProjectRoot() => HandlerBase.GetProjectRoot();
 }

@@ -9,3 +9,4 @@ Thumbs.db
 editor/Editor/arenula_mcp.editor.csproj
 editor/Editor/Properties/launchSettings.json
 test/
+.superpowers/

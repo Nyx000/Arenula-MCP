@@ -9,8 +9,8 @@ using Sandbox;
 namespace Arenula;
 
 /// <summary>
-/// camera tool: create, configure.
-/// Ported from CameraToolHandlers.cs (149 lines).
+/// camera tool: create, configure, capture_viewport, capture_tour, orbit_capture.
+/// Ported from CameraToolHandlers.cs, extended with capture actions.
 /// </summary>
 internal static class CameraHandler
 {

@@ -87,7 +87,7 @@ Tools appear as `mcp__editor__*`, `mcp__api__*`, `mcp__docs__*` in your AI clien
 
 ## Editor Tools
 
-19 omnibus tools, ~134 actions. Each tool takes a required `action` parameter.
+19 omnibus tools, ~136 actions. Each tool takes a required `action` parameter.
 
 | Tool | Actions | Count |
 |------|---------|-------|
@@ -104,7 +104,7 @@ Tools appear as `mcp__editor__*`, `mcp__api__*`, `mcp__docs__*` in your AI clien
 | **physics** | add_collider, configure_collider, add_rigidbody, create_model_physics, create_character_controller, create_joint | 6 |
 | **audio** | create, configure | 2 |
 | **effects** | create, configure_particle, configure_post_processing | 3 |
-| **camera** | create, configure, capture_viewport | 3 |
+| **camera** | create, configure, capture_viewport, capture_tour, orbit_capture | 5 |
 | **mesh** | create_block, create_clutter, set_face_material, set_texture_params, vertex ops, get_info | 8 |
 | **navmesh** | create_agent, create_area, create_link, generate, get_status, query_path | 6 |
 | **cloud** | search, get_package, mount | 3 |

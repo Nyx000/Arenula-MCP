@@ -133,8 +133,7 @@ internal static class ProjectHandler
 
     private static object GetInfo()
     {
-        var libPath = Editor.FileSystem.Libraries.GetFullPath( "" );
-        var projectDir = Path.GetDirectoryName( libPath );
+        var projectDir = HandlerBase.GetProjectRoot();
         if ( projectDir == null )
             return HandlerBase.Error( "Could not locate project root.", "get_info" );
 

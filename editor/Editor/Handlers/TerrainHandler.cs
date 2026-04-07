@@ -8,7 +8,9 @@ using Sandbox;
 namespace Arenula;
 
 /// <summary>
-/// terrain tool: create, configure, get_info, paint_material, sync.
+/// terrain tool: create, configure, get_info, get_height, get_height_region, set_height,
+/// noise, erode, stamp, add_material, remove_material, get_material_at, blend_materials,
+/// set_hole, paint_material, import_heightmap, export_heightmap, sync.
 /// All actions are NEW (not ported from Ozmium).
 /// Uses Terrain component + TerrainStorage + TerrainMaterial APIs.
 /// </summary>
@@ -70,8 +72,8 @@ internal static class TerrainHandler
         terrain.TerrainSize = size;
         terrain.TerrainHeight = height;
 
-        // Auto-import from a previously exported heightmap if one exists
-        TryAutoImport( terrain );
+        // Persist storage as a file-backed asset so the scene can serialize the reference
+        TryPersistStorageAsFile( terrain );
 
         return HandlerBase.Success( new
         {
@@ -1236,30 +1238,32 @@ internal static class TerrainHandler
         // Update materials buffer
         terrain.UpdateMaterialsBuffer();
 
-        // Try to persist storage as a file-backed .terrain asset.
-        // This makes play mode work (scene saves file reference, not null).
+        // Persist storage as a file-backed .terrain asset in the project directory.
         var persisted = TryPersistStorageAsFile( terrain );
-
-        // Also auto-export heightmap PNG as a backup
-        var exported = TryAutoExport( terrain );
 
         return HandlerBase.Success( new
         {
             id = terrain.GameObject.Id.ToString(),
             name = terrain.GameObject.Name,
             storagePersisted = persisted,
-            heightmapExported = exported,
             message = "Terrain synced (CPU→GPU + GPU→CPU). Changes are now visible and saveable."
                     + ( persisted ? " Storage saved to .terrain file." : "" )
-                    + ( exported ? " Heightmap PNG backup exported." : "" )
         } );
     }
 
     // ── auto-persistence helpers ────────────────────────────────────
 
     /// <summary>
-    /// Try to persist the TerrainStorage as a file-backed .terrain asset.
-    /// This is the proper fix: the scene saves a file reference instead of null.
+    /// Persist TerrainStorage as a file-backed .terrain asset so the scene serializes
+    /// a real resource reference instead of null.
+    ///
+    /// The source .terrain JSON is written to the project directory (terrain_data/).
+    /// The compiled .terrain_c is cached in sbox/core/terrain_data/ — this is a
+    /// limitation of AssetSystem.CompileResource which always resolves relative paths
+    /// against the engine's core mount. RegisterFile(absPath) returns null because the
+    /// asset path collides with the existing core-mounted entry, so we fall back to
+    /// FindByPath. A sync call regenerates the compiled cache if it's ever lost
+    /// (e.g. after an engine update).
     /// </summary>
     private static bool TryPersistStorageAsFile( Terrain terrain )
     {
@@ -1267,13 +1271,6 @@ internal static class TerrainHandler
         {
             var storage = terrain.Storage;
             if ( storage == null ) return false;
-
-            // If it already has a resource path, it's already file-backed
-            if ( !string.IsNullOrEmpty( storage.ResourcePath ) && storage.ResourcePath != "sandbox.terrain" )
-            {
-                Log.Info( $"[terrain] Storage already file-backed: {storage.ResourcePath}" );
-                return true;
-            }
 
             var name = terrain.GameObject.Name?.ToLower().Replace( ' ', '_' ) ?? "terrain";
             var relativePath = $"terrain_data/{name}.terrain";
@@ -1284,44 +1281,43 @@ internal static class TerrainHandler
             if ( !string.IsNullOrEmpty( dir ) && !System.IO.Directory.Exists( dir ) )
                 System.IO.Directory.CreateDirectory( dir );
 
-            // Serialize the storage to JSON (materials included —
-            // they resolve if .tmat files exist locally in the project).
+            // Always write current serialized data to the source file
             var json = storage.Serialize();
             var jsonText = json.ToJsonString();
             System.IO.File.WriteAllText( absPath, jsonText );
 
-            // Register the file with the asset system and compile
-            var asset = AssetSystem.RegisterFile( absPath );
-            if ( asset != null )
+            // Compile the resource data so the engine has an up-to-date .terrain_c
+            AssetSystem.CompileResource( relativePath, jsonText );
+
+            // Find or register the asset so we can load the compiled resource
+            var asset = AssetSystem.FindByPath( relativePath )
+                     ?? AssetSystem.RegisterFile( absPath );
+
+            if ( asset == null )
             {
-                asset.Compile( true );
-                // Try loading via the asset's registered path
-                var loaded = ResourceLibrary.Get<TerrainStorage>( asset.Path );
-                if ( loaded != null )
-                {
-                    terrain.Storage = loaded;
-                    Log.Info( $"[terrain] Storage persisted via RegisterFile: {asset.Path}" );
-                    return true;
-                }
-                Log.Warning( $"[terrain] RegisterFile OK but ResourceLibrary.Get returned null (asset.Path={asset.Path})" );
+                Log.Warning( $"[terrain] Asset not found after compile: {relativePath}" );
+                return false;
             }
 
-            // Fallback: try CompileResource + direct path load
-            var compiled = AssetSystem.CompileResource( relativePath, jsonText );
-            Log.Info( $"[terrain] CompileResource({relativePath}) = {compiled}" );
-
-            if ( compiled )
+            // If storage already points to a valid file, the rewrite + recompile is enough
+            var alreadyBacked = !string.IsNullOrEmpty( storage.ResourcePath )
+                                && storage.ResourcePath != "sandbox.terrain";
+            if ( alreadyBacked )
             {
-                var loaded2 = ResourceLibrary.Get<TerrainStorage>( relativePath );
-                if ( loaded2 != null )
-                {
-                    terrain.Storage = loaded2;
-                    Log.Info( $"[terrain] Storage persisted via CompileResource: {relativePath}" );
-                    return true;
-                }
+                Log.Info( $"[terrain] Updated storage: {relativePath}" );
+                return true;
             }
 
-            Log.Warning( $"[terrain] Could not persist storage to file. absPath={absPath}" );
+            // First time: load the compiled resource and assign to terrain
+            var loaded = asset.LoadResource<TerrainStorage>();
+            if ( loaded != null )
+            {
+                terrain.Storage = loaded;
+                Log.Info( $"[terrain] Storage persisted: {asset.Path}" );
+                return true;
+            }
+
+            Log.Warning( $"[terrain] LoadResource<TerrainStorage> returned null (Path={asset.Path})" );
             return false;
         }
         catch ( Exception ex )
@@ -1330,131 +1326,6 @@ internal static class TerrainHandler
             return false;
         }
     }
-
-    private static string GetAutoHeightmapPath( Terrain terrain )
-    {
-        var name = terrain.GameObject.Name?.ToLower().Replace( ' ', '_' ) ?? "terrain";
-        return $"terrain_backups/{name}_heightmap.png";
-    }
-
-    /// <summary>Export the heightmap to a PNG so it survives scene save/load cycles.</summary>
-    private static bool TryAutoExport( Terrain terrain )
-    {
-        try
-        {
-            var storage = terrain.Storage;
-            if ( storage?.HeightMap == null ) return false;
-
-            var relativePath = GetAutoHeightmapPath( terrain );
-            var absPath = HandlerBase.ResolveProjectPath( relativePath );
-            if ( absPath == null ) return false;
-
-            var dir = System.IO.Path.GetDirectoryName( absPath );
-            if ( !string.IsNullOrEmpty( dir ) && !System.IO.Directory.Exists( dir ) )
-                System.IO.Directory.CreateDirectory( dir );
-
-            var res = storage.Resolution;
-            var bitmap = new Bitmap( res, res );
-            for ( int y = 0; y < res; y++ )
-            for ( int x = 0; x < res; x++ )
-            {
-                var idx = y * res + x;
-                var n = storage.HeightMap[idx] / 65535.0f;
-                bitmap.SetPixel( x, y, new Color( n, n, n, 1f ) );
-            }
-
-            var pngData = bitmap.ToPng();
-            bitmap.Dispose();
-            System.IO.File.WriteAllBytes( absPath, pngData );
-
-            // Also save metadata (size, height, resolution) alongside the PNG
-            var metaPath = absPath + ".meta";
-            var meta = $"{{\"size\":{terrain.TerrainSize},\"height\":{terrain.TerrainHeight},\"resolution\":{res}}}";
-            System.IO.File.WriteAllText( metaPath, meta );
-
-            Log.Info( $"[terrain] Auto-exported heightmap to {relativePath}" );
-            return true;
-        }
-        catch ( Exception ex )
-        {
-            Log.Warning( $"[terrain] Auto-export failed: {ex.Message}" );
-            return false;
-        }
-    }
-
-    /// <summary>If storage is empty and a backed-up heightmap PNG exists, restore it.</summary>
-    private static bool TryAutoImport( Terrain terrain )
-    {
-        try
-        {
-            var storage = terrain.Storage;
-            if ( storage == null ) return false;
-
-            // Only import if the heightmap is blank (all zeros)
-            bool isBlank = true;
-            if ( storage.HeightMap != null )
-            {
-                for ( int i = 0; i < Math.Min( 100, storage.HeightMap.Length ); i++ )
-                {
-                    if ( storage.HeightMap[i] != 0 ) { isBlank = false; break; }
-                }
-            }
-            if ( !isBlank ) return false;
-
-            var relativePath = GetAutoHeightmapPath( terrain );
-            var absPath = HandlerBase.ResolveProjectPath( relativePath );
-            if ( absPath == null || !System.IO.File.Exists( absPath ) ) return false;
-
-            // Read metadata if available
-            var metaPath = absPath + ".meta";
-            if ( System.IO.File.Exists( metaPath ) )
-            {
-                var metaJson = System.IO.File.ReadAllText( metaPath );
-                var meta = System.Text.Json.JsonDocument.Parse( metaJson ).RootElement;
-                if ( meta.TryGetProperty( "resolution", out var resEl ) )
-                    storage.SetResolution( resEl.GetInt32() );
-                if ( meta.TryGetProperty( "size", out var sizeEl ) )
-                {
-                    storage.TerrainSize = sizeEl.GetSingle();
-                    terrain.TerrainSize = sizeEl.GetSingle();
-                }
-                if ( meta.TryGetProperty( "height", out var heightEl ) )
-                {
-                    storage.TerrainHeight = heightEl.GetSingle();
-                    terrain.TerrainHeight = heightEl.GetSingle();
-                }
-            }
-
-            var bytes = System.IO.File.ReadAllBytes( absPath );
-            var bitmap = Bitmap.CreateFromBytes( bytes );
-            if ( bitmap == null || !bitmap.IsValid ) return false;
-
-            var res = storage.Resolution;
-            if ( bitmap.Width != res || bitmap.Height != res )
-                bitmap = bitmap.Resize( res, res );
-
-            var pixels = bitmap.GetPixels();
-            for ( int i = 0; i < Math.Min( pixels.Length, storage.HeightMap.Length ); i++ )
-            {
-                var luminance = pixels[i].r * 0.299f + pixels[i].g * 0.587f + pixels[i].b * 0.114f;
-                storage.HeightMap[i] = (ushort)( Math.Clamp( luminance, 0f, 1f ) * 65535f );
-            }
-            bitmap.Dispose();
-
-            // Sync to GPU so it's visible
-            terrain.SyncGPUTexture();
-
-            Log.Info( $"[terrain] Auto-imported heightmap from {relativePath}" );
-            return true;
-        }
-        catch ( Exception ex )
-        {
-            Log.Warning( $"[terrain] Auto-import failed: {ex.Message}" );
-            return false;
-        }
-    }
-
-    // ── Helpers ───────────────────────────────────────────────────────────
 
     // ── Perlin noise helpers ────────────────────────────────────────
 
@@ -1532,17 +1403,6 @@ internal static class TerrainHandler
                 throw new ArgumentException( $"Multiple terrains found ({allTerrains.Count}). Provide 'id' to specify which one." );
 
             terrain = allTerrains[0];
-        }
-
-        // If storage exists but heightmap is blank, try restoring from auto-export
-        if ( terrain.Storage?.HeightMap != null && action != "create" )
-        {
-            bool isBlank = true;
-            for ( int i = 0; i < Math.Min( 100, terrain.Storage.HeightMap.Length ); i++ )
-            {
-                if ( terrain.Storage.HeightMap[i] != 0 ) { isBlank = false; break; }
-            }
-            if ( isBlank ) TryAutoImport( terrain );
         }
 
         return terrain;
