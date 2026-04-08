@@ -236,21 +236,42 @@ internal static class ToolRegistry
     internal static readonly object Mesh = new
     {
         name = "mesh",
-        description = "Create and edit polygon meshes directly in the scene. Use 'create_block' for box primitives and 'create_clutter' for scattered decoration objects. Vertex tools edit individual mesh vertices (position, color, blend). Face tools control materials and texture mapping. This is for raw mesh geometry — to place existing model assets, use 'gameobject' + 'component' to add a ModelRenderer instead.",
+        description = "Create and edit polygon meshes directly in the scene. Primitives: 'create_block' (box), 'create_plane' (flat quad), 'create_cylinder' (ring-based), 'create_wedge' (triangular prism/ramp), 'create_arch' (semicircular arc), 'create_clutter' (scattered objects). Construction: 'extrude_faces' (push faces outward), 'remove_faces' (cut holes), 'add_face' (polygon from vertices), 'clip_faces' (slice with plane), 'scale_mesh' (resize). Refinement: 'thicken_faces' (give faces depth), 'bevel_edges' (round edges), 'bevel_vertices' (round corners), 'split_edges' (subdivide edges), 'quad_slice_faces' (subdivide faces into grid), 'dissolve_edges' (simplify by merging faces). Topology: 'bridge_edges' (connect two open edges), 'connect_vertices' (split face by connecting two vertices), 'flip_faces' (reverse normals), 'extend_edges' (extrude boundary edges outward). Per-element: vertex position/color/blend, face material/texture. Note: after topology changes, face/vertex/edge indices are invalidated — use returned indices or 'get_info' for subsequent operations.",
         inputSchema = new
         {
             type = "object",
             properties = new Dictionary<string, object>
             {
-                ["action"] = new { type = "string", description = "The operation to perform.", @enum = new[] { "create_block", "create_clutter", "set_face_material", "set_texture_params", "set_vertex_position", "set_vertex_color", "set_vertex_blend", "get_info" } },
-                ["id"] = new { type = "string", description = "Target mesh GameObject GUID. Required for: set_face_material, set_texture_params, set_vertex_position, set_vertex_color, set_vertex_blend, get_info." },
-                ["position"] = new { type = "string", description = "Position as 'x,y,z'. Used by: create_block, create_clutter." },
-                ["size"] = new { type = "string", description = "Block size as 'x,y,z'. Used by: create_block." },
-                ["material"] = new { type = "string", description = "Material path. Used by: create_block, set_face_material." },
+                ["action"] = new { type = "string", description = "The operation to perform.", @enum = new[] { "create_block", "create_clutter", "create_plane", "create_cylinder", "create_wedge", "create_arch", "extrude_faces", "remove_faces", "add_face", "clip_faces", "scale_mesh", "thicken_faces", "bevel_edges", "bevel_vertices", "split_edges", "quad_slice_faces", "dissolve_edges", "bridge_edges", "connect_vertices", "flip_faces", "extend_edges", "set_face_material", "set_texture_params", "set_vertex_position", "set_vertex_color", "set_vertex_blend", "get_info" } },
+                ["id"] = new { type = "string", description = "Target mesh GameObject GUID. Required for: extrude_faces, remove_faces, add_face, clip_faces, scale_mesh, thicken_faces, bevel_edges, bevel_vertices, split_edges, quad_slice_faces, dissolve_edges, bridge_edges, connect_vertices, flip_faces, extend_edges, set_face_material, set_texture_params, set_vertex_position, set_vertex_color, set_vertex_blend, get_info." },
+                ["position"] = new { type = "string", description = "Position as 'x,y,z'. Used by: create_block, create_plane, create_cylinder, create_wedge, create_arch, create_clutter." },
+                ["size"] = new { type = "string", description = "Size as 'x,y,z'. Used by: create_block, create_plane, create_cylinder, create_wedge, create_arch. For scale_mesh: scale factor as 'x,y,z'." },
+                ["material"] = new { type = "string", description = "Material path. Used by: create_block, create_plane, create_cylinder, create_wedge, create_arch, set_face_material, add_face." },
+                ["name"] = new { type = "string", description = "Object name. Used by: create_block, create_plane, create_cylinder, create_wedge, create_arch, create_clutter." },
                 ["definition"] = new { type = "string", description = "Clutter definition asset path. Required for: create_clutter." },
                 ["radius"] = new { type = "number", description = "Scatter radius. Used by: create_clutter." },
-                ["face_index"] = new { type = "integer", description = "Face index. Required for: set_face_material, set_texture_params." },
-                ["vertex_index"] = new { type = "integer", description = "Vertex index. Required for: set_vertex_position, set_vertex_color, set_vertex_blend." },
+                ["segments"] = new { type = "integer", description = "Segment count (3-64). Used by: create_cylinder (default 16), create_arch (default 8)." },
+                ["face_index"] = new { type = "integer", description = "Single face index. Required for: set_face_material, set_texture_params." },
+                ["face_indices"] = new { type = "string", description = "Comma-separated face indices '0,1,2'. Required for: extrude_faces, remove_faces, clip_faces, thicken_faces, quad_slice_faces." },
+                ["vertex_index"] = new { type = "integer", description = "Single vertex index. Required for: set_vertex_position, set_vertex_color, set_vertex_blend." },
+                ["vertex_indices"] = new { type = "string", description = "Comma-separated vertex indices in winding order. Required for: add_face. Used by: bevel_vertices." },
+                ["extrude_offset"] = new { type = "string", description = "Extrusion direction/distance as 'x,y,z'. Used by: extrude_faces. Default: face normal * 50." },
+                ["plane_normal"] = new { type = "string", description = "Cutting plane normal as 'x,y,z'. Required for: clip_faces." },
+                ["plane_point"] = new { type = "string", description = "Point on cutting plane as 'x,y,z'. Required for: clip_faces." },
+                ["remove_behind"] = new { type = "boolean", description = "Remove faces behind cutting plane. Used by: clip_faces. Default: true." },
+                ["cap"] = new { type = "boolean", description = "Cap the cut opening with a new face. Used by: clip_faces. Default: true." },
+                ["edge_indices"] = new { type = "string", description = "Comma-separated half-edge indices. Required for: bevel_edges, split_edges, dissolve_edges, extend_edges." },
+                ["edge_index_a"] = new { type = "integer", description = "First edge index. Required for: bridge_edges." },
+                ["edge_index_b"] = new { type = "integer", description = "Second edge index. Required for: bridge_edges." },
+                ["vertex_index_a"] = new { type = "integer", description = "First vertex index. Required for: connect_vertices." },
+                ["vertex_index_b"] = new { type = "integer", description = "Second vertex index. Required for: connect_vertices." },
+                ["amount"] = new { type = "number", description = "Thickness/distance amount. Required for: thicken_faces, extend_edges." },
+                ["distance"] = new { type = "number", description = "Bevel distance. Used by: bevel_edges, bevel_vertices. Default: 5." },
+                ["bevel_segments"] = new { type = "integer", description = "Bevel smoothness (segment count). Used by: bevel_edges. Default: 1." },
+                ["shape"] = new { type = "number", description = "Bevel profile shape (-1 to 1). Used by: bevel_edges. Default: 0." },
+                ["cuts_x"] = new { type = "integer", description = "X subdivisions. Used by: quad_slice_faces. Default: 1." },
+                ["cuts_y"] = new { type = "integer", description = "Y subdivisions. Used by: quad_slice_faces. Default: 1." },
+                ["must_be_planar"] = new { type = "boolean", description = "Require planar faces for dissolve. Used by: dissolve_edges. Default: false." },
                 ["color"] = new { type = "string", description = "Color as 'r,g,b,a'. Required for: set_vertex_color." },
                 ["blend"] = new { type = "number", description = "Blend weight 0-1. Required for: set_vertex_blend." },
                 ["offset"] = new { type = "string", description = "Texture offset as 'u,v'. Used by: set_texture_params." },
@@ -309,6 +330,7 @@ internal static class ToolRegistry
                 ["surface"] = new { type = "string", description = "Surface material path. Used by: configure_collider." },
                 ["gravity"] = new { type = "boolean", description = "Enable gravity. Used by: add_rigidbody. Default: true." },
                 ["mass"] = new { type = "number", description = "Mass in kg. Used by: add_rigidbody." },
+                ["enhanced_ccd"] = new { type = "boolean", description = "Enable enhanced continuous collision detection for fast-moving objects (bullets, rockets). Used by: add_rigidbody." },
                 ["body_a"] = new { type = "string", description = "First body GUID. Required for: create_joint." },
                 ["body_b"] = new { type = "string", description = "Second body GUID. Used by: create_joint." }
             },
@@ -488,17 +510,18 @@ internal static class ToolRegistry
     internal static readonly object Cloud = new
     {
         name = "cloud",
-        description = "Search the s&box cloud asset store, get package details, and mount packages into the current project. Returns package idents, titles, types, and thumbnail URLs. Use 'get_package' to get the 'primaryAsset' field — this contains the local vmdl path needed for Model.Load() and scene file references. Use 'mount' to download and register a package in the project's .sbproj file. Runs on background thread — does not block the editor. For local project assets, use 'asset_query' instead.",
+        description = "Search the s&box cloud asset store, get package details, list versions, and mount packages into the current project. Returns package idents, titles, types, and thumbnail URLs. Use 'get_package' to get the 'primaryAsset' field — this contains the local vmdl path needed for Model.Load() and scene file references. Use 'get_versions' to list all available revisions of a package (useful for pinning map versions). Use 'mount' to download and register a package in the project's .sbproj file — optionally pin to a specific revision. Runs on background thread — does not block the editor. For local project assets, use 'asset_query' instead.",
         inputSchema = new
         {
             type = "object",
             properties = new Dictionary<string, object>
             {
-                ["action"] = new { type = "string", description = "The operation to perform.", @enum = new[] { "search", "get_package", "mount" } },
+                ["action"] = new { type = "string", description = "The operation to perform.", @enum = new[] { "search", "get_package", "get_versions", "mount" } },
                 ["query"] = new { type = "string", description = "Search term. Required for: search." },
-                ["ident"] = new { type = "string", description = "Package identifier in 'org.name' format. Required for: get_package, mount." },
+                ["ident"] = new { type = "string", description = "Package identifier in 'org.name' format. Required for: get_package, get_versions, mount." },
                 ["type"] = new { type = "string", description = "Filter by asset type. Used by: search." },
-                ["max_results"] = new { type = "integer", description = "Max search results (1-50). Used by: search. Default: 10." }
+                ["max_results"] = new { type = "integer", description = "Max search results (1-50). Used by: search. Default: 10." },
+                ["revision"] = new { type = "integer", description = "Pin to a specific package revision number (from get_versions). Used by: mount." }
             },
             required = new[] { "action" },
             additionalProperties = false

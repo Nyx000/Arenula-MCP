@@ -14,7 +14,7 @@ Designed following [Anthropic's MCP best practices](https://www.anthropic.com/en
 |--------|-------------|---------|-----------|
 | **Editor** | Scene manipulation, compilation, assets, terrain | C# plugin inside s&box | SSE `:8098` |
 | **API** | Offline type/member reference (~1,800 types, ~15,000 members) | Node.js | stdio |
-| **Docs** | Narrative docs from docs.facepunch.com | Node.js | stdio |
+| **Docs** | Narrative docs from sbox.game (raw markdown via `.md` endpoints) | Node.js | stdio |
 
 ## Setup
 
@@ -87,7 +87,7 @@ Tools appear as `mcp__editor__*`, `mcp__api__*`, `mcp__docs__*` in your AI clien
 
 ## Editor Tools
 
-19 omnibus tools, ~136 actions. Each tool takes a required `action` parameter.
+19 omnibus tools, ~156 actions. Each tool takes a required `action` parameter.
 
 | Tool | Actions | Count |
 |------|---------|-------|
@@ -105,9 +105,9 @@ Tools appear as `mcp__editor__*`, `mcp__api__*`, `mcp__docs__*` in your AI clien
 | **audio** | create, configure | 2 |
 | **effects** | create, configure_particle, configure_post_processing | 3 |
 | **camera** | create, configure, capture_viewport, capture_tour, orbit_capture | 5 |
-| **mesh** | create_block, create_clutter, set_face_material, set_texture_params, vertex ops, get_info | 8 |
+| **mesh** | create_block, create_plane, create_cylinder, create_wedge, create_arch, create_clutter, extrude_faces, remove_faces, add_face, clip_faces, scale_mesh, thicken_faces, bevel_edges, bevel_vertices, split_edges, quad_slice_faces, dissolve_edges, bridge_edges, connect_vertices, flip_faces, extend_edges, set_face_material, set_texture_params, vertex ops, get_info | 27 |
 | **navmesh** | create_agent, create_area, create_link, generate, get_status, query_path | 6 |
-| **cloud** | search, get_package, mount | 3 |
+| **cloud** | search, get_package, get_versions, mount | 4 |
 | **project** | get_collision, set_collision_rule, get_input, get_info | 4 |
 | **terrain** | create, configure, get_info, get_height, get_height_region, set_height, noise, erode, stamp, add/remove_material, get_material_at, blend_materials, set_hole, paint_material, import/export_heightmap, sync | 18 |
 

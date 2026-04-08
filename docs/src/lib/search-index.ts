@@ -25,31 +25,49 @@ const index = new MiniSearch<DocEntry>({
 
 let initialized = false
 
-// Key documentation pages to seed the search index
-const SEED_URLS = [
-  { url: 'https://docs.facepunch.com/s/sbox-dev/doc/about-QGgSEpJhxe', title: 'About' },
-  { url: 'https://docs.facepunch.com/s/sbox-dev/doc/first-steps-7IyiSplYmn', title: 'First Steps' },
-  { url: 'https://docs.facepunch.com/s/sbox-dev/doc/code-basics-3W3PHk1tD3', title: 'Code Basics' },
-  { url: 'https://docs.facepunch.com/s/sbox-dev/doc/cheat-sheet-CH6MPz8N2j', title: 'Cheat Sheet' },
-  { url: 'https://docs.facepunch.com/s/sbox-dev/doc/scenes-LT2kjsMBy4', title: 'Scenes' },
-  { url: 'https://docs.facepunch.com/s/sbox-dev/doc/gameobject-oUVQQzT4IO', title: 'GameObject' },
-  { url: 'https://docs.facepunch.com/s/sbox-dev/doc/components-zIujvXKpIl', title: 'Components' },
-  { url: 'https://docs.facepunch.com/s/sbox-dev/doc/component-methods-OCvoNh8ByW', title: 'Component Methods' },
-  { url: 'https://docs.facepunch.com/s/sbox-dev/doc/prefabs-Tiq5GBWmm3', title: 'Prefabs' },
-  { url: 'https://docs.facepunch.com/s/sbox-dev/doc/networking-multiplayer-kaVboe3yRD', title: 'Networking & Multiplayer' },
-  { url: 'https://docs.facepunch.com/s/sbox-dev/doc/input-Hhi5KoJOnF', title: 'Input' },
-  { url: 'https://docs.facepunch.com/s/sbox-dev/doc/navigation-vwoSUsEPJ9', title: 'Navigation' },
-  { url: 'https://docs.facepunch.com/s/sbox-dev/doc/tracing-FI4tuMSbSF', title: 'Tracing' },
-  { url: 'https://docs.facepunch.com/s/sbox-dev/doc/terrain-RoH8crPRmG', title: 'Terrain' },
-  { url: 'https://docs.facepunch.com/s/sbox-dev/doc/ui-kM9biZcQrj', title: 'UI' },
-  { url: 'https://docs.facepunch.com/s/sbox-dev/doc/player-controller-G9xW4n1yAS', title: 'Player Controller' },
-  { url: 'https://docs.facepunch.com/s/sbox-dev/doc/assetsresources-vfClHodkqi', title: 'Assets & Resources' },
-  { url: 'https://docs.facepunch.com/s/sbox-dev/doc/particle-effect-Ah4PenyGKk', title: 'Particle Effects' },
-  { url: 'https://docs.facepunch.com/s/sbox-dev/doc/shader-graph-O1KJlOQ8Pe', title: 'Shader Graph' },
-  { url: 'https://docs.facepunch.com/s/sbox-dev/doc/post-processing-oRlAHNS6bK', title: 'Post Processing' },
-  { url: 'https://docs.facepunch.com/s/sbox-dev/doc/razor-panels-dMbfl4Sqlw', title: 'Razor Panels' },
-  { url: 'https://docs.facepunch.com/s/sbox-dev/doc/file-system-0LoS75PRwn', title: 'File System' },
-]
+const LLMS_TXT_URL = 'https://sbox.game/llms.txt'
+const SBOX_BASE = 'https://sbox.game'
+const TIMEOUT = parseInt(process.env.SBOX_DOCS_REQUEST_TIMEOUT || '10000')
+const USER_AGENT = process.env.SBOX_DOCS_USER_AGENT || 'arenula-docs/1.0.0'
+
+/**
+ * Parse llms.txt and extract all documentation .md URLs with titles.
+ * Format: `- [Title](/dev/doc/path.md)`
+ */
+function parseLlmsTxt(text: string): Array<{ url: string; title: string }> {
+  const entries: Array<{ url: string; title: string }> = []
+  for (const line of text.split('\n')) {
+    const match = line.match(/^- \[([^\]]+)\]\(([^)]+\.md)\)/)
+    if (match) {
+      entries.push({ title: match[1], url: `${SBOX_BASE}${match[2]}` })
+    }
+  }
+  return entries
+}
+
+/**
+ * Fetch the documentation page index from sbox.game/llms.txt.
+ * Returns parsed entries, or empty array on failure.
+ */
+async function fetchPageIndex(): Promise<Array<{ url: string; title: string }>> {
+  try {
+    const response = await fetch(LLMS_TXT_URL, {
+      headers: { 'User-Agent': USER_AGENT },
+      signal: AbortSignal.timeout(TIMEOUT),
+    })
+    if (!response.ok) {
+      console.error(`[arenula-docs] Failed to fetch llms.txt: HTTP ${response.status}`)
+      return []
+    }
+    const text = await response.text()
+    const entries = parseLlmsTxt(text)
+    console.error(`[arenula-docs] Parsed ${entries.length} pages from llms.txt`)
+    return entries
+  } catch (err) {
+    console.error('[arenula-docs] Failed to fetch llms.txt:', err)
+    return []
+  }
+}
 
 export function addDocument(entry: DocEntry): void {
   if (!index.has(entry.id)) {
@@ -61,9 +79,17 @@ export async function ensureInitialized(fetcher: (url: string) => Promise<{ titl
   if (initialized) return
   initialized = true
 
-  // Seed the index with known docs pages — fetch in parallel with a concurrency limit
+  // Fetch the page index dynamically from llms.txt
+  const pages = await fetchPageIndex()
+
+  if (pages.length === 0) {
+    console.error('[arenula-docs] No pages from llms.txt — search will be empty until pages are fetched via get_page')
+    return
+  }
+
+  // Seed the index with all docs pages — fetch in parallel
   const results = await Promise.allSettled(
-    SEED_URLS.map(async ({ url, title }) => {
+    pages.map(async ({ url, title }) => {
       try {
         const result = await fetcher(url)
         addDocument({
@@ -80,7 +106,7 @@ export async function ensureInitialized(fetcher: (url: string) => Promise<{ titl
   )
 
   const succeeded = results.filter(r => r.status === 'fulfilled').length
-  console.error(`[arenula-docs] Indexed ${succeeded}/${SEED_URLS.length} documentation pages`)
+  console.error(`[arenula-docs] Indexed ${succeeded}/${pages.length} documentation pages`)
 }
 
 export function search(query: string, limit = 10): SearchResult[] {

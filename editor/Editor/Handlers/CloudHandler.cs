@@ -24,11 +24,12 @@ internal static class CloudHandler
         {
             return action switch
             {
-                "search"      => await Search( args ),
-                "get_package" => await GetPackage( args ),
-                "mount"       => await Mount( args ),
+                "search"       => await Search( args ),
+                "get_package"  => await GetPackage( args ),
+                "get_versions" => await GetVersions( args ),
+                "mount"        => await Mount( args ),
                 _ => HandlerBase.Error( $"Unknown action '{action}'", action,
-                    "Valid actions: search, get_package, mount" )
+                    "Valid actions: search, get_package, get_versions, mount" )
             };
         }
         catch ( Exception ex )
@@ -107,6 +108,35 @@ internal static class CloudHandler
         } );
     }
 
+    // ── get_versions ────────────────────────────────────────────────
+
+    private static async Task<object> GetVersions( JsonElement args )
+    {
+        var ident = HandlerBase.GetString( args, "ident" );
+        if ( string.IsNullOrEmpty( ident ) )
+            return HandlerBase.Error( "Missing required 'ident' parameter.", "get_versions" );
+
+        var versions = await Package.FetchVersions( ident );
+        if ( versions == null || versions.Count == 0 )
+            return HandlerBase.Text( $"No versions found for '{ident}'." );
+
+        var items = versions.Select( v => new
+        {
+            version_id = v.VersionId,
+            summary = v.Summary,
+            created = v.Created.ToString( "yyyy-MM-dd HH:mm" ),
+            engine_version = v.EngineVersion,
+            total_size = v.TotalSize
+        } ).ToList();
+
+        return HandlerBase.Success( new
+        {
+            ident,
+            count = items.Count,
+            versions = items
+        } );
+    }
+
     // ── mount ─────────────────────────────────────────────────────────
     // Ported from CloudAssetHandlers.MountCloudAsset
 
@@ -116,22 +146,35 @@ internal static class CloudHandler
         if ( string.IsNullOrEmpty( ident ) )
             return HandlerBase.Error( "Missing required 'ident' parameter.", "mount" );
 
-        var pkg = await Package.FetchAsync( ident, false );
+        // If a specific revision is requested, encode it into the ident
+        var revision = HandlerBase.GetInt( args, "revision", 0 );
+        var mountIdent = ident;
+        if ( revision > 0 )
+        {
+            if ( Package.TryParseIdent( ident, out var parsed ) )
+                mountIdent = Package.FormatIdent( parsed.Item1, parsed.Item2, revision );
+            else
+                return HandlerBase.Error( $"Could not parse ident '{ident}' to apply revision.", "mount",
+                    "Use 'org.name' format for the ident parameter." );
+        }
+
+        var pkg = await Package.FetchAsync( mountIdent, false );
         if ( pkg == null )
-            return HandlerBase.Error( $"Package '{ident}' not found.", "mount" );
+            return HandlerBase.Error( $"Package '{mountIdent}' not found.", "mount" );
 
         // Mount and add to .sbproj — both require main thread
         await GameTask.MainThread();
         await pkg.MountAsync();
 
         // Add to .sbproj PackageReferences for persistence across restarts
-        bool added = AddPackageReference( ident );
+        bool added = AddPackageReference( mountIdent );
 
         var status = added
             ? "Mounted and added to .sbproj PackageReferences."
             : "Mounted (already in PackageReferences).";
 
-        return HandlerBase.Text( $"{status} Package: '{ident}'" );
+        var revisionNote = revision > 0 ? $" (revision {revision})" : "";
+        return HandlerBase.Text( $"{status} Package: '{mountIdent}'{revisionNote}" );
     }
 
     // ── Helpers ────────────────────────────────────────────────────────

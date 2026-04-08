@@ -37,7 +37,7 @@ Open s&box — the plugin compiles automatically and starts the MCP server on `h
 
 ## Tools (19)
 
-Each tool uses an `action` enum parameter. 19 tools, ~134 total actions.
+Each tool uses an `action` enum parameter. 19 tools, ~156 total actions.
 
 | Tool | Actions |
 |------|---------|
@@ -54,10 +54,10 @@ Each tool uses an `action` enum parameter. 19 tools, ~134 total actions.
 | **physics** | add_collider, configure_collider, add_rigidbody, create_model_physics, create_character_controller, create_joint |
 | **audio** | create, configure |
 | **effects** | create, configure_particle, configure_post_processing |
-| **camera** | create, configure, capture_viewport |
-| **mesh** | create_block, create_clutter, set_face_material, set_texture_params, vertex ops, get_info |
+| **camera** | create, configure, capture_viewport, capture_tour, orbit_capture |
+| **mesh** | create_block, create_plane, create_cylinder, create_wedge, create_arch, create_clutter, extrude_faces, remove_faces, add_face, clip_faces, scale_mesh, thicken_faces, bevel_edges, bevel_vertices, split_edges, quad_slice_faces, dissolve_edges, bridge_edges, connect_vertices, flip_faces, extend_edges, set_face_material, set_texture_params, vertex ops, get_info |
 | **navmesh** | create_agent, create_area, create_link, generate, get_status, query_path |
-| **cloud** | search, get_package, mount |
+| **cloud** | search, get_package, get_versions, mount |
 | **project** | get_collision, set_collision_rule, get_input, get_info |
 | **terrain** | create, configure, get_info, get_height, get_height_region, set_height, noise, erode, stamp, add/remove_material, get_material_at, blend_materials, set_hole, paint_material, import/export_heightmap, sync |
 

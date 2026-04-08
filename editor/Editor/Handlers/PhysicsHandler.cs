@@ -296,13 +296,17 @@ internal static class PhysicsHandler
         rb.Gravity = HandlerBase.GetBool( args, "gravity", true );
         if ( args.TryGetProperty( "gravity_scale", out var gsEl ) && gsEl.ValueKind == JsonValueKind.Number )
             rb.GravityScale = gsEl.GetSingle();
+        if ( args.TryGetProperty( "enhanced_ccd", out var ccdEl ) &&
+             ( ccdEl.ValueKind == JsonValueKind.True || ccdEl.ValueKind == JsonValueKind.False ) )
+            rb.EnhancedCcd = ccdEl.GetBoolean();
 
         return HandlerBase.Success( new
         {
             message = $"Added Rigidbody to '{go.Name}'.",
             component_id = rb.Id.ToString(),
             mass_override = rb.MassOverride,
-            gravity = rb.Gravity
+            gravity = rb.Gravity,
+            enhanced_ccd = rb.EnhancedCcd
         } );
     }
 

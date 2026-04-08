@@ -11,11 +11,12 @@ export const GetPageInput = z.object({
     .url()
     .refine(
       (u) =>
+        u.includes('sbox.game') ||
         u.includes('docs.facepunch.com') ||
         u.includes('wiki.facepunch.com'),
-      'URL must be from docs.facepunch.com or wiki.facepunch.com',
+      'URL must be from sbox.game, docs.facepunch.com, or wiki.facepunch.com',
     )
-    .describe('Documentation page URL'),
+    .describe('Documentation page URL (prefer sbox.game/dev/doc/...path.md for raw markdown)'),
   start_index: z
     .number()
     .min(0)
