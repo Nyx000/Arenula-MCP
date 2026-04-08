@@ -174,6 +174,18 @@ internal static class HandlerBase
         return new Vector2( float.Parse( parts[0].Trim() ), float.Parse( parts[1].Trim() ) );
     }
 
+    /// <summary>Parse a comma-separated string of integers "0,1,2" into an int array.</summary>
+    internal static int[] ParseIntArray( string s )
+    {
+        if ( string.IsNullOrWhiteSpace( s ) )
+            throw new ArgumentException( "Expected comma-separated integers, got empty string" );
+        var parts = s.Split( ',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries );
+        var result = new int[parts.Length];
+        for ( int i = 0; i < parts.Length; i++ )
+            result[i] = int.Parse( parts[i] );
+        return result;
+    }
+
     // ── Write confirmation ─────────────────────────────────────────────
 
     /// <summary>Standard write confirmation with ID tuple and message.</summary>

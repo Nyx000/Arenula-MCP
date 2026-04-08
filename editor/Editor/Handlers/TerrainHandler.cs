@@ -54,17 +54,26 @@ internal static class TerrainHandler
         var size = HandlerBase.GetFloat( args, "size", 1024f );
         var height = HandlerBase.GetFloat( args, "height", 512f );
         var resolution = HandlerBase.GetInt( args, "resolution", 512 );
+        var name = HandlerBase.GetString( args, "name", "Terrain" );
 
         var go = scene.CreateObject();
-        go.Name = "Terrain";
+        go.Name = name;
 
         var terrain = go.Components.Create<Terrain>();
 
-        // Create storage with resolution set BEFORE assigning to the component.
-        // The Terrain component re-initializes GPU textures on Storage assignment,
-        // so the resolution must already be correct at that point.
+        // Reuse the component's default storage if available (it has proper
+        // asset system initialization), otherwise create a new one.
         var storage = terrain.Storage ?? new TerrainStorage();
         storage.SetResolution( resolution );
+
+        // SetResolution updates the property but doesn't reallocate the backing
+        // arrays. Force-allocate HeightMap and ControlMap to the requested size.
+        var texelCount = resolution * resolution;
+        if ( storage.HeightMap == null || storage.HeightMap.Length != texelCount )
+            storage.HeightMap = new ushort[texelCount];
+        if ( storage.ControlMap == null || storage.ControlMap.Length != texelCount )
+            storage.ControlMap = new uint[texelCount];
+
         storage.TerrainSize = size;
         storage.TerrainHeight = height;
 
@@ -72,8 +81,25 @@ internal static class TerrainHandler
         terrain.TerrainSize = size;
         terrain.TerrainHeight = height;
 
-        // Persist storage as a file-backed asset so the scene can serialize the reference
+        // Persist storage as a file-backed asset — uses go.Name for the file path
+        // so each terrain gets a unique file, avoiding asset cache collisions.
         TryPersistStorageAsFile( terrain );
+
+        // Force requested dimensions and resolution back onto storage.
+        // TryPersistStorageAsFile may have loaded a cached resource that
+        // clobbers our size, height, and array allocations.
+        if ( terrain.Storage != null )
+        {
+            terrain.Storage.SetResolution( resolution );
+            if ( terrain.Storage.HeightMap == null || terrain.Storage.HeightMap.Length != texelCount )
+                terrain.Storage.HeightMap = new ushort[texelCount];
+            if ( terrain.Storage.ControlMap == null || terrain.Storage.ControlMap.Length != texelCount )
+                terrain.Storage.ControlMap = new uint[texelCount];
+            terrain.Storage.TerrainSize = size;
+            terrain.Storage.TerrainHeight = height;
+        }
+        terrain.TerrainSize = size;
+        terrain.TerrainHeight = height;
 
         return HandlerBase.Success( new
         {
@@ -1056,7 +1082,7 @@ internal static class TerrainHandler
                         newHeight = current + ( centerWorldHeight - current ) * brushStrength;
                         break;
                     case "smooth":
-                        var avg = GetAverageHeight( storage, px, py, res, terrainHeight, 2 );
+                        var avg = GetAverageHeight( storage, px, py, res, terrainHeight, 6 );
                         newHeight = current + ( avg - current ) * brushStrength;
                         break;
                     default: // "set"
@@ -1308,7 +1334,7 @@ internal static class TerrainHandler
                 return true;
             }
 
-            // First time: load the compiled resource and assign to terrain
+            // First time: load the compiled resource and assign to terrain.
             var loaded = asset.LoadResource<TerrainStorage>();
             if ( loaded != null )
             {
