@@ -638,7 +638,7 @@
         </div>
         <div class="hero-stats">
             <div class="hero-stat"><div class="n">19</div><div class="l">Tools</div></div>
-            <div class="hero-stat"><div class="n">~120</div><div class="l">Actions</div></div>
+            <div class="hero-stat"><div class="n">~156</div><div class="l">Actions</div></div>
             <div class="hero-stat"><div class="n">3</div><div class="l">Servers</div></div>
             <div class="hero-stat"><div class="n">8-13K</div><div class="l">Tokens</div></div>
         </div>
@@ -664,7 +664,7 @@
             </div>
             <div class="srv">
                 <h3>Docs</h3>
-                <p>Narrative documentation fetcher. Scrapes docs.facepunch.com, converts to Markdown, caches with LRU.</p>
+                <p>Narrative documentation fetcher. Fetches raw Markdown from sbox.game via .md endpoints, strips front-matter, caches with LRU.</p>
                 <div class="srv-meta"><span>3 tools</span><span>stdio</span><span>TypeScript</span></div>
             </div>
         </div>
@@ -676,7 +676,7 @@
 <div class="section">
     <div class="wrap">
         <h2 id="tools">Editor Tools</h2>
-        <p>19 omnibus tools, ~155 actions. Each takes a required <code>action</code> parameter to select the operation.</p>
+        <p>19 omnibus tools, ~156 actions. Each takes a required <code>action</code> parameter to select the operation.</p>
         <div class="tools">
             <div class="t"><div class="t-name">scene</div><div class="t-acts"><code>summary</code> <code>hierarchy</code> <code>statistics</code> <code>find</code> <code>find_in_radius</code> <code>get_details</code> <code>prefab_instances</code></div><div class="t-n">7</div></div>
             <div class="t"><div class="t-name">gameobject</div><div class="t-acts"><code>create</code> <code>destroy</code> <code>duplicate</code> <code>reparent</code> <code>rename</code> <code>enable</code> <code>set_tags</code> <code>set_transform</code> <code>batch_transform</code></div><div class="t-n">9</div></div>
@@ -790,8 +790,7 @@
 <span class="p">Arenula-MCP/editor/</span>  -->  <span class="p">YourProject/Libraries/arenula_mcp/</span></pre>
         <h3>2. Build the API and Docs servers</h3>
         <pre class="code"><span class="cm"># From the Arenula-MCP directory</span>
-cd api && npm install && npm run build
-cd ../docs && npm install && npm run build</pre>
+npm run setup</pre>
         <h3>3. Configure .mcp.json in your project root</h3>
         <pre class="code">{
   "mcpServers": {
