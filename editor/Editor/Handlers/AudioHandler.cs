@@ -73,14 +73,7 @@ internal static class AudioHandler
 
         var soundEvent = HandlerBase.GetString( args, "sound_event" );
         if ( !string.IsNullOrEmpty( soundEvent ) )
-        {
-            var asset = AssetSystem.FindByPath( soundEvent );
-            if ( asset != null )
-            {
-                var ev = asset.LoadResource<SoundEvent>();
-                if ( ev != null ) snd.SoundEvent = ev;
-            }
-        }
+            snd.SoundEvent = HandlerBase.RequireResource<SoundEvent>( soundEvent, "create_audio_source" );
 
         if ( args.TryGetProperty( "volume", out var vEl ) && vEl.ValueKind == JsonValueKind.Number )
             snd.Volume = vEl.GetSingle();
@@ -107,8 +100,8 @@ internal static class AudioHandler
         var st = go.Components.Create<SoundscapeTrigger>();
 
         var triggerType = HandlerBase.GetString( args, "trigger_type", "Sphere" );
-        if ( Enum.TryParse<SoundscapeTrigger.TriggerType>( triggerType, true, out var tt ) )
-            st.Type = tt;
+        var ttParsed = HandlerBase.ResolveEnum<SoundscapeTrigger.TriggerType>( triggerType, "trigger_type", "create_soundscape_trigger" );
+        if ( ttParsed.HasValue ) st.Type = ttParsed.Value;
 
         if ( args.TryGetProperty( "volume", out var vEl ) && vEl.ValueKind == JsonValueKind.Number )
             st.Volume = vEl.GetSingle();
@@ -122,14 +115,7 @@ internal static class AudioHandler
 
         var scapePath = HandlerBase.GetString( args, "soundscape_path" );
         if ( !string.IsNullOrEmpty( scapePath ) )
-        {
-            var asset = AssetSystem.FindByPath( scapePath );
-            if ( asset != null )
-            {
-                var scape = asset.LoadResource<Soundscape>();
-                if ( scape != null ) st.Soundscape = scape;
-            }
-        }
+            st.Soundscape = HandlerBase.RequireResource<Soundscape>( scapePath, "create_soundscape_trigger" );
 
         return HandlerBase.Success( new
         {
@@ -159,14 +145,7 @@ internal static class AudioHandler
 
         var soundEvent = HandlerBase.GetString( args, "sound_event" );
         if ( !string.IsNullOrEmpty( soundEvent ) )
-        {
-            var asset = AssetSystem.FindByPath( soundEvent );
-            if ( asset != null )
-            {
-                var ev = asset.LoadResource<SoundEvent>();
-                if ( ev != null ) sb.SoundEvent = ev;
-            }
-        }
+            sb.SoundEvent = HandlerBase.RequireResource<SoundEvent>( soundEvent, "create_sound_box" );
 
         return HandlerBase.Success( new
         {
@@ -192,8 +171,8 @@ internal static class AudioHandler
 
         var sv = dsp.SceneVolume;
         var volumeType = HandlerBase.GetString( args, "volume_type", "Box" );
-        if ( Enum.TryParse<Sandbox.Volumes.SceneVolume.VolumeTypes>( volumeType, true, out var vt ) )
-            sv.Type = vt;
+        var vtParsed = HandlerBase.ResolveEnum<Sandbox.Volumes.SceneVolume.VolumeTypes>( volumeType, "volume_type", "create_volume" );
+        if ( vtParsed.HasValue ) sv.Type = vtParsed.Value;
 
         if ( sv.Type == Sandbox.Volumes.SceneVolume.VolumeTypes.Box )
         {
@@ -276,14 +255,7 @@ internal static class AudioHandler
 
         var soundEvent = HandlerBase.GetString( args, "sound_event" );
         if ( !string.IsNullOrEmpty( soundEvent ) )
-        {
-            var asset = AssetSystem.FindByPath( soundEvent );
-            if ( asset != null )
-            {
-                var ev = asset.LoadResource<SoundEvent>();
-                if ( ev != null ) snd.SoundEvent = ev;
-            }
-        }
+            snd.SoundEvent = HandlerBase.RequireResource<SoundEvent>( soundEvent, "configure_audio_source" );
 
         if ( args.TryGetProperty( "volume", out var vEl ) && vEl.ValueKind == JsonValueKind.Number )
             snd.Volume = vEl.GetSingle();
