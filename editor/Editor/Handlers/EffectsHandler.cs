@@ -22,11 +22,14 @@ internal static class EffectsHandler
         {
             return action switch
             {
-                "create"                   => Create( args ),
-                "configure_particle"       => ConfigureParticle( args ),
+                "create"                    => Create( args ),
+                "configure_particle"        => ConfigureParticle( args ),
                 "configure_post_processing" => ConfigurePostProcessing( args ),
+                "configure_sprite"          => ConfigureSprite( args ),
+                "configure_prop"            => ConfigureProp( args ),
+                "configure_world_panel"     => ConfigureWorldPanel( args ),
                 _ => HandlerBase.Error( $"Unknown action '{action}'", action,
-                    "Valid actions: create, configure_particle, configure_post_processing" )
+                    "Valid actions: create, configure_particle, configure_post_processing, configure_sprite, configure_prop, configure_world_panel" )
             };
         }
         catch ( Exception ex )
@@ -57,10 +60,13 @@ internal static class EffectsHandler
             "rope"           => CreateRope( scene, args, position ),
             "radius_damage"  => CreateRadiusDamage( scene, args, position ),
             "render_entity"  => CreateRenderEntity( scene, args, position ),
+            "sprite"         => CreateSprite( scene, args, position ),
+            "prop"           => CreateProp( scene, args, position ),
+            "world_panel"    => CreateWorldPanel( scene, args, position ),
             _ => HandlerBase.Error(
                 $"Unknown effect type '{type}'.",
                 "create",
-                "Valid types: particle, fog, beam, rope, radius_damage, render_entity" )
+                "Valid types: particle, fog, beam, rope, radius_damage, render_entity, sprite, prop, world_panel" )
         };
     }
 
@@ -373,5 +379,357 @@ internal static class EffectsHandler
         pp.EditorPreview = HandlerBase.GetBool( args, "editor_preview", pp.EditorPreview );
 
         return HandlerBase.Confirm( $"Configured PostProcessVolume on '{go.Name}'." );
+    }
+
+    // ── CreateSprite ─────────────────────────────────────────────────
+
+    private static object CreateSprite( Scene scene, JsonElement args, Vector3 position )
+    {
+        var go = scene.CreateObject();
+        go.Name = HandlerBase.GetString( args, "name" ) ?? "Sprite";
+        go.WorldPosition = position;
+
+        var sr = go.Components.Create<SpriteRenderer>();
+
+        var spritePath = HandlerBase.GetString( args, "sprite" );
+        if ( !string.IsNullOrEmpty( spritePath ) )
+        {
+            var sprite = ResourceLibrary.Get<Sprite>( spritePath );
+            if ( sprite != null ) sr.Sprite = sprite;
+        }
+
+        var sizeStr = HandlerBase.GetString( args, "size" );
+        if ( sizeStr != null ) sr.Size = HandlerBase.ParseVector2( sizeStr );
+
+        var colorStr = HandlerBase.GetString( args, "color" );
+        if ( !string.IsNullOrEmpty( colorStr ) )
+        {
+            try { sr.Color = Color.Parse( colorStr ) ?? default; } catch { }
+        }
+
+        var billboard = HandlerBase.GetString( args, "billboard" );
+        if ( !string.IsNullOrEmpty( billboard ) )
+        {
+            if ( Enum.TryParse<SpriteRenderer.BillboardMode>( billboard, true, out var bm ) )
+                sr.Billboard = bm;
+        }
+
+        if ( args.TryGetProperty( "lighting", out var litEl ) &&
+             ( litEl.ValueKind == JsonValueKind.True || litEl.ValueKind == JsonValueKind.False ) )
+            sr.Lighting = litEl.GetBoolean();
+        if ( args.TryGetProperty( "shadows", out var shEl ) &&
+             ( shEl.ValueKind == JsonValueKind.True || shEl.ValueKind == JsonValueKind.False ) )
+            sr.Shadows = shEl.GetBoolean();
+        if ( args.TryGetProperty( "opaque", out var opEl ) &&
+             ( opEl.ValueKind == JsonValueKind.True || opEl.ValueKind == JsonValueKind.False ) )
+            sr.Opaque = opEl.GetBoolean();
+        if ( args.TryGetProperty( "flip_horizontal", out var fhEl ) &&
+             ( fhEl.ValueKind == JsonValueKind.True || fhEl.ValueKind == JsonValueKind.False ) )
+            sr.FlipHorizontal = fhEl.GetBoolean();
+        if ( args.TryGetProperty( "flip_vertical", out var fvEl ) &&
+             ( fvEl.ValueKind == JsonValueKind.True || fvEl.ValueKind == JsonValueKind.False ) )
+            sr.FlipVertical = fvEl.GetBoolean();
+
+        var animation = HandlerBase.GetString( args, "animation" );
+        if ( !string.IsNullOrEmpty( animation ) )
+            sr.StartingAnimationName = animation;
+        if ( args.TryGetProperty( "playback_speed", out var psEl ) && psEl.ValueKind == JsonValueKind.Number )
+            sr.PlaybackSpeed = psEl.GetSingle();
+
+        return HandlerBase.Success( new
+        {
+            message = $"Created SpriteRenderer '{go.Name}'.",
+            id = go.Id.ToString(),
+            component_id = sr.Id.ToString(),
+            position = HandlerBase.V3( go.WorldPosition )
+        } );
+    }
+
+    // ── CreateProp ───────────────────────────────────────────────────
+
+    private static object CreateProp( Scene scene, JsonElement args, Vector3 position )
+    {
+        var modelPath = HandlerBase.GetString( args, "model" );
+        if ( string.IsNullOrEmpty( modelPath ) )
+            return HandlerBase.Error( "Missing required 'model' parameter for prop type.", "create" );
+
+        var go = scene.CreateObject();
+        go.Name = HandlerBase.GetString( args, "name" ) ?? "Prop";
+        go.WorldPosition = position;
+
+        var prop = go.Components.Create<Prop>();
+        var model = Model.Load( modelPath );
+        if ( model != null ) prop.Model = model;
+
+        var tintStr = HandlerBase.GetString( args, "tint" );
+        if ( !string.IsNullOrEmpty( tintStr ) )
+        {
+            try { prop.Tint = Color.Parse( tintStr ) ?? default; } catch { }
+        }
+
+        if ( args.TryGetProperty( "health", out var hEl ) && hEl.ValueKind == JsonValueKind.Number )
+            prop.Health = hEl.GetSingle();
+        if ( args.TryGetProperty( "is_static", out var isEl ) &&
+             ( isEl.ValueKind == JsonValueKind.True || isEl.ValueKind == JsonValueKind.False ) )
+            prop.IsStatic = isEl.GetBoolean();
+        if ( args.TryGetProperty( "is_flammable", out var ifEl ) &&
+             ( ifEl.ValueKind == JsonValueKind.True || ifEl.ValueKind == JsonValueKind.False ) )
+            prop.IsFlammable = ifEl.GetBoolean();
+        if ( args.TryGetProperty( "start_asleep", out var saEl ) &&
+             ( saEl.ValueKind == JsonValueKind.True || saEl.ValueKind == JsonValueKind.False ) )
+            prop.StartAsleep = saEl.GetBoolean();
+
+        var materialGroup = HandlerBase.GetString( args, "material_group" );
+        if ( !string.IsNullOrEmpty( materialGroup ) )
+            prop.MaterialGroup = materialGroup;
+
+        return HandlerBase.Success( new
+        {
+            message = $"Created Prop '{go.Name}'.",
+            id = go.Id.ToString(),
+            component_id = prop.Id.ToString(),
+            model = modelPath,
+            position = HandlerBase.V3( go.WorldPosition )
+        } );
+    }
+
+    // ── CreateWorldPanel ─────────────────────────────────────────────
+
+    private static object CreateWorldPanel( Scene scene, JsonElement args, Vector3 position )
+    {
+        var go = scene.CreateObject();
+        go.Name = HandlerBase.GetString( args, "name" ) ?? "World Panel";
+        go.WorldPosition = position;
+
+        var wp = go.Components.Create<WorldPanel>();
+
+        var panelSizeStr = HandlerBase.GetString( args, "panel_size" );
+        if ( panelSizeStr != null )
+            wp.PanelSize = HandlerBase.ParseVector2( panelSizeStr );
+
+        if ( args.TryGetProperty( "look_at_camera", out var lacEl ) &&
+             ( lacEl.ValueKind == JsonValueKind.True || lacEl.ValueKind == JsonValueKind.False ) )
+            wp.LookAtCamera = lacEl.GetBoolean();
+        if ( args.TryGetProperty( "render_scale", out var rsEl ) && rsEl.ValueKind == JsonValueKind.Number )
+            wp.RenderScale = rsEl.GetSingle();
+        if ( args.TryGetProperty( "interaction_range", out var irEl ) && irEl.ValueKind == JsonValueKind.Number )
+            wp.InteractionRange = irEl.GetSingle();
+
+        var hAlign = HandlerBase.GetString( args, "horizontal_align" );
+        if ( !string.IsNullOrEmpty( hAlign ) )
+        {
+            if ( Enum.TryParse<WorldPanel.HAlignment>( hAlign, true, out var ha ) )
+                wp.HorizontalAlign = ha;
+        }
+
+        var vAlign = HandlerBase.GetString( args, "vertical_align" );
+        if ( !string.IsNullOrEmpty( vAlign ) )
+        {
+            if ( Enum.TryParse<WorldPanel.VAlignment>( vAlign, true, out var va ) )
+                wp.VerticalAlign = va;
+        }
+
+        return HandlerBase.Success( new
+        {
+            message = $"Created WorldPanel '{go.Name}'.",
+            id = go.Id.ToString(),
+            component_id = wp.Id.ToString(),
+            panel_size = new { x = wp.PanelSize.x, y = wp.PanelSize.y },
+            position = HandlerBase.V3( go.WorldPosition )
+        } );
+    }
+
+    // ── configure_sprite ─────────────────────────────────────────────
+
+    private static object ConfigureSprite( JsonElement args )
+    {
+        var scene = SceneHelpers.ResolveScene();
+        if ( scene == null )
+            return HandlerBase.Error( "No active scene.", "configure_sprite" );
+
+        var id = HandlerBase.GetString( args, "id" );
+        if ( string.IsNullOrEmpty( id ) )
+            return HandlerBase.Error( "Missing required 'id' parameter.", "configure_sprite" );
+
+        var go = SceneHelpers.FindByIdOrThrow( scene, id, "configure_sprite" );
+
+        SpriteRenderer sr = null;
+        var compId = HandlerBase.GetString( args, "component_id" );
+        if ( !string.IsNullOrEmpty( compId ) && Guid.TryParse( compId, out var cGuid ) )
+            sr = go.Components.GetAll().FirstOrDefault( c => c is SpriteRenderer && c.Id == cGuid ) as SpriteRenderer;
+        else
+            sr = go.Components.Get<SpriteRenderer>();
+
+        if ( sr == null )
+            return HandlerBase.Error( $"No SpriteRenderer found on '{go.Name}'.", "configure_sprite" );
+
+        var spritePath = HandlerBase.GetString( args, "sprite" );
+        if ( !string.IsNullOrEmpty( spritePath ) )
+        {
+            var sprite = ResourceLibrary.Get<Sprite>( spritePath );
+            if ( sprite != null ) sr.Sprite = sprite;
+        }
+
+        var sizeStr = HandlerBase.GetString( args, "size" );
+        if ( sizeStr != null ) sr.Size = HandlerBase.ParseVector2( sizeStr );
+
+        var colorStr = HandlerBase.GetString( args, "color" );
+        if ( !string.IsNullOrEmpty( colorStr ) )
+        {
+            try { sr.Color = Color.Parse( colorStr ) ?? default; } catch { }
+        }
+
+        var billboard = HandlerBase.GetString( args, "billboard" );
+        if ( !string.IsNullOrEmpty( billboard ) )
+        {
+            if ( Enum.TryParse<SpriteRenderer.BillboardMode>( billboard, true, out var bm ) )
+                sr.Billboard = bm;
+        }
+
+        if ( args.TryGetProperty( "lighting", out var litEl ) &&
+             ( litEl.ValueKind == JsonValueKind.True || litEl.ValueKind == JsonValueKind.False ) )
+            sr.Lighting = litEl.GetBoolean();
+        if ( args.TryGetProperty( "shadows", out var shEl ) &&
+             ( shEl.ValueKind == JsonValueKind.True || shEl.ValueKind == JsonValueKind.False ) )
+            sr.Shadows = shEl.GetBoolean();
+        if ( args.TryGetProperty( "opaque", out var opEl ) &&
+             ( opEl.ValueKind == JsonValueKind.True || opEl.ValueKind == JsonValueKind.False ) )
+            sr.Opaque = opEl.GetBoolean();
+        if ( args.TryGetProperty( "flip_horizontal", out var fhEl ) &&
+             ( fhEl.ValueKind == JsonValueKind.True || fhEl.ValueKind == JsonValueKind.False ) )
+            sr.FlipHorizontal = fhEl.GetBoolean();
+        if ( args.TryGetProperty( "flip_vertical", out var fvEl ) &&
+             ( fvEl.ValueKind == JsonValueKind.True || fvEl.ValueKind == JsonValueKind.False ) )
+            sr.FlipVertical = fvEl.GetBoolean();
+        if ( args.TryGetProperty( "playback_speed", out var psEl ) && psEl.ValueKind == JsonValueKind.Number )
+            sr.PlaybackSpeed = psEl.GetSingle();
+
+        var texFilter = HandlerBase.GetString( args, "texture_filter" );
+        if ( !string.IsNullOrEmpty( texFilter ) )
+        {
+            if ( Enum.TryParse<Sandbox.Rendering.FilterMode>( texFilter, true, out var fm ) )
+                sr.TextureFilter = fm;
+        }
+
+        if ( args.TryGetProperty( "depth_feather", out var dfEl ) && dfEl.ValueKind == JsonValueKind.Number )
+            sr.DepthFeather = dfEl.GetSingle();
+        if ( args.TryGetProperty( "fog_strength", out var fsEl ) && fsEl.ValueKind == JsonValueKind.Number )
+            sr.FogStrength = fsEl.GetSingle();
+        if ( args.TryGetProperty( "alpha_cutoff", out var acEl ) && acEl.ValueKind == JsonValueKind.Number )
+            sr.AlphaCutoff = acEl.GetSingle();
+
+        return HandlerBase.Confirm( $"Configured SpriteRenderer on '{go.Name}'." );
+    }
+
+    // ── configure_prop ───────────────────────────────────────────────
+
+    private static object ConfigureProp( JsonElement args )
+    {
+        var scene = SceneHelpers.ResolveScene();
+        if ( scene == null )
+            return HandlerBase.Error( "No active scene.", "configure_prop" );
+
+        var id = HandlerBase.GetString( args, "id" );
+        if ( string.IsNullOrEmpty( id ) )
+            return HandlerBase.Error( "Missing required 'id' parameter.", "configure_prop" );
+
+        var go = SceneHelpers.FindByIdOrThrow( scene, id, "configure_prop" );
+
+        Prop prop = null;
+        var compId = HandlerBase.GetString( args, "component_id" );
+        if ( !string.IsNullOrEmpty( compId ) && Guid.TryParse( compId, out var cGuid ) )
+            prop = go.Components.GetAll().FirstOrDefault( c => c is Prop && c.Id == cGuid ) as Prop;
+        else
+            prop = go.Components.Get<Prop>();
+
+        if ( prop == null )
+            return HandlerBase.Error( $"No Prop component found on '{go.Name}'.", "configure_prop" );
+
+        var modelPath = HandlerBase.GetString( args, "model" );
+        if ( !string.IsNullOrEmpty( modelPath ) )
+        {
+            var model = Model.Load( modelPath );
+            if ( model != null ) prop.Model = model;
+        }
+
+        var tintStr = HandlerBase.GetString( args, "tint" );
+        if ( !string.IsNullOrEmpty( tintStr ) )
+        {
+            try { prop.Tint = Color.Parse( tintStr ) ?? default; } catch { }
+        }
+
+        if ( args.TryGetProperty( "health", out var hEl ) && hEl.ValueKind == JsonValueKind.Number )
+            prop.Health = hEl.GetSingle();
+        if ( args.TryGetProperty( "is_static", out var isEl ) &&
+             ( isEl.ValueKind == JsonValueKind.True || isEl.ValueKind == JsonValueKind.False ) )
+            prop.IsStatic = isEl.GetBoolean();
+        if ( args.TryGetProperty( "is_flammable", out var ifEl ) &&
+             ( ifEl.ValueKind == JsonValueKind.True || ifEl.ValueKind == JsonValueKind.False ) )
+            prop.IsFlammable = ifEl.GetBoolean();
+        if ( args.TryGetProperty( "start_asleep", out var saEl ) &&
+             ( saEl.ValueKind == JsonValueKind.True || saEl.ValueKind == JsonValueKind.False ) )
+            prop.StartAsleep = saEl.GetBoolean();
+
+        var materialGroup = HandlerBase.GetString( args, "material_group" );
+        if ( !string.IsNullOrEmpty( materialGroup ) )
+            prop.MaterialGroup = materialGroup;
+
+        if ( args.TryGetProperty( "body_groups", out var bgEl ) && bgEl.ValueKind == JsonValueKind.Number )
+            prop.BodyGroups = bgEl.GetUInt64();
+
+        return HandlerBase.Confirm( $"Configured Prop on '{go.Name}'." );
+    }
+
+    // ── configure_world_panel ────────────────────────────────────────
+
+    private static object ConfigureWorldPanel( JsonElement args )
+    {
+        var scene = SceneHelpers.ResolveScene();
+        if ( scene == null )
+            return HandlerBase.Error( "No active scene.", "configure_world_panel" );
+
+        var id = HandlerBase.GetString( args, "id" );
+        if ( string.IsNullOrEmpty( id ) )
+            return HandlerBase.Error( "Missing required 'id' parameter.", "configure_world_panel" );
+
+        var go = SceneHelpers.FindByIdOrThrow( scene, id, "configure_world_panel" );
+
+        WorldPanel wp = null;
+        var compId = HandlerBase.GetString( args, "component_id" );
+        if ( !string.IsNullOrEmpty( compId ) && Guid.TryParse( compId, out var cGuid ) )
+            wp = go.Components.GetAll().FirstOrDefault( c => c is WorldPanel && c.Id == cGuid ) as WorldPanel;
+        else
+            wp = go.Components.Get<WorldPanel>();
+
+        if ( wp == null )
+            return HandlerBase.Error( $"No WorldPanel found on '{go.Name}'.", "configure_world_panel" );
+
+        var panelSizeStr = HandlerBase.GetString( args, "panel_size" );
+        if ( panelSizeStr != null )
+            wp.PanelSize = HandlerBase.ParseVector2( panelSizeStr );
+
+        if ( args.TryGetProperty( "look_at_camera", out var lacEl ) &&
+             ( lacEl.ValueKind == JsonValueKind.True || lacEl.ValueKind == JsonValueKind.False ) )
+            wp.LookAtCamera = lacEl.GetBoolean();
+        if ( args.TryGetProperty( "render_scale", out var rsEl ) && rsEl.ValueKind == JsonValueKind.Number )
+            wp.RenderScale = rsEl.GetSingle();
+        if ( args.TryGetProperty( "interaction_range", out var irEl ) && irEl.ValueKind == JsonValueKind.Number )
+            wp.InteractionRange = irEl.GetSingle();
+
+        var hAlign = HandlerBase.GetString( args, "horizontal_align" );
+        if ( !string.IsNullOrEmpty( hAlign ) )
+        {
+            if ( Enum.TryParse<WorldPanel.HAlignment>( hAlign, true, out var ha ) )
+                wp.HorizontalAlign = ha;
+        }
+
+        var vAlign = HandlerBase.GetString( args, "vertical_align" );
+        if ( !string.IsNullOrEmpty( vAlign ) )
+        {
+            if ( Enum.TryParse<WorldPanel.VAlignment>( vAlign, true, out var va ) )
+                wp.VerticalAlign = va;
+        }
+
+        return HandlerBase.Confirm( $"Configured WorldPanel on '{go.Name}'." );
     }
 }
