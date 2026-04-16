@@ -394,7 +394,6 @@ internal static class ToolRegistry
                 ["tint"] = new { type = "string", description = "Tint color as CSS hex or 'r,g,b'. Used by: create (type=prop), configure_prop." },
                 ["health"] = new { type = "number", description = "Prop health. Used by: create (type=prop), configure_prop." },
                 ["is_static"] = new { type = "boolean", description = "Static prop (no physics). Used by: create (type=prop), configure_prop." },
-                ["is_flammable"] = new { type = "boolean", description = "Can catch fire. Used by: create (type=prop), configure_prop." },
                 ["start_asleep"] = new { type = "boolean", description = "Start with physics sleeping. Used by: create (type=prop), configure_prop." },
                 ["material_group"] = new { type = "string", description = "Material group name. Used by: create (type=prop), configure_prop." },
                 ["body_groups"] = new { type = "integer", description = "Body group bitmask (uint64). Used by: configure_prop." },

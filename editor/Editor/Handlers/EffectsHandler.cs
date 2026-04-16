@@ -472,9 +472,7 @@ internal static class EffectsHandler
         if ( args.TryGetProperty( "is_static", out var isEl ) &&
              ( isEl.ValueKind == JsonValueKind.True || isEl.ValueKind == JsonValueKind.False ) )
             prop.IsStatic = isEl.GetBoolean();
-        if ( args.TryGetProperty( "is_flammable", out var ifEl ) &&
-             ( ifEl.ValueKind == JsonValueKind.True || ifEl.ValueKind == JsonValueKind.False ) )
-            prop.IsFlammable = ifEl.GetBoolean();
+        // Note: Prop.IsFlammable is read-only (derived from model data)
         if ( args.TryGetProperty( "start_asleep", out var saEl ) &&
              ( saEl.ValueKind == JsonValueKind.True || saEl.ValueKind == JsonValueKind.False ) )
             prop.StartAsleep = saEl.GetBoolean();
@@ -666,9 +664,7 @@ internal static class EffectsHandler
         if ( args.TryGetProperty( "is_static", out var isEl ) &&
              ( isEl.ValueKind == JsonValueKind.True || isEl.ValueKind == JsonValueKind.False ) )
             prop.IsStatic = isEl.GetBoolean();
-        if ( args.TryGetProperty( "is_flammable", out var ifEl ) &&
-             ( ifEl.ValueKind == JsonValueKind.True || ifEl.ValueKind == JsonValueKind.False ) )
-            prop.IsFlammable = ifEl.GetBoolean();
+        // Note: Prop.IsFlammable is read-only (derived from model data)
         if ( args.TryGetProperty( "start_asleep", out var saEl ) &&
              ( saEl.ValueKind == JsonValueKind.True || saEl.ValueKind == JsonValueKind.False ) )
             prop.StartAsleep = saEl.GetBoolean();
