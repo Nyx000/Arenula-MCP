@@ -1435,11 +1435,8 @@ internal static class TerrainHandler
             clutter.Seed = sEl.GetInt32();
 
         var modeStr = HandlerBase.GetString( args, "mode" );
-        if ( !string.IsNullOrEmpty( modeStr ) )
-        {
-            if ( Enum.TryParse<Sandbox.Clutter.ClutterComponent.ClutterMode>( modeStr, true, out var cm ) )
-                clutter.Mode = cm;
-        }
+        var modeParsed = HandlerBase.ResolveEnum<Sandbox.Clutter.ClutterComponent.ClutterMode>( modeStr, "mode", "configure_clutter" );
+        if ( modeParsed.HasValue ) clutter.Mode = modeParsed.Value;
 
         return HandlerBase.Confirm( $"Configured ClutterComponent on '{go.Name}': seed={clutter.Seed}, mode={clutter.Mode}." );
     }
