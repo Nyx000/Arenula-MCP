@@ -22,32 +22,39 @@ internal static class TerrainHandler
         if ( scene == null )
             return HandlerBase.Error( "No active scene found.", action, "Open a scene in the editor first." );
 
-        return action switch
+        try
         {
-            "create"            => Create( scene, args ),
-            "configure"         => Configure( scene, args ),
-            "get_info"          => GetInfo( scene, args ),
-            "get_height"        => GetHeight( scene, args ),
-            "get_height_region" => GetHeightRegion( scene, args ),
-            "set_height"        => SetHeight( scene, args ),
-            "noise"             => ApplyNoise( scene, args ),
-            "erode"             => Erode( scene, args ),
-            "stamp"             => Stamp( scene, args ),
-            "add_material"      => AddMaterial( scene, args ),
-            "remove_material"   => RemoveMaterial( scene, args ),
-            "get_material_at"   => GetMaterialAt( scene, args ),
-            "blend_materials"   => BlendMaterials( scene, args ),
-            "set_hole"          => SetHole( scene, args ),
-            "paint_material"    => PaintMaterial( scene, args ),
-            "import_heightmap"  => ImportHeightmap( scene, args ),
-            "export_heightmap"  => ExportHeightmap( scene, args ),
-            "sync"              => Sync( scene, args ),
-            "configure_clutter" => ConfigureClutter( scene, args ),
-            "regenerate_clutter" => RegenerateClutter( scene, args ),
-            "clear_clutter"     => ClearClutter( scene, args ),
-            _                   => HandlerBase.Error( $"Unknown action '{action}' for tool 'terrain'.", action,
-                "Valid actions: create, configure, get_info, get_height, get_height_region, set_height, noise, erode, stamp, add_material, remove_material, get_material_at, blend_materials, set_hole, paint_material, import_heightmap, export_heightmap, sync, configure_clutter, regenerate_clutter, clear_clutter" )
-        };
+            return action switch
+            {
+                "create"            => Create( scene, args ),
+                "configure"         => Configure( scene, args ),
+                "get_info"          => GetInfo( scene, args ),
+                "get_height"        => GetHeight( scene, args ),
+                "get_height_region" => GetHeightRegion( scene, args ),
+                "set_height"        => SetHeight( scene, args ),
+                "noise"             => ApplyNoise( scene, args ),
+                "erode"             => Erode( scene, args ),
+                "stamp"             => Stamp( scene, args ),
+                "add_material"      => AddMaterial( scene, args ),
+                "remove_material"   => RemoveMaterial( scene, args ),
+                "get_material_at"   => GetMaterialAt( scene, args ),
+                "blend_materials"   => BlendMaterials( scene, args ),
+                "set_hole"          => SetHole( scene, args ),
+                "paint_material"    => PaintMaterial( scene, args ),
+                "import_heightmap"  => ImportHeightmap( scene, args ),
+                "export_heightmap"  => ExportHeightmap( scene, args ),
+                "sync"              => Sync( scene, args ),
+                "configure_clutter" => ConfigureClutter( scene, args ),
+                "regenerate_clutter" => RegenerateClutter( scene, args ),
+                "clear_clutter"     => ClearClutter( scene, args ),
+                _                   => HandlerBase.Error( $"Unknown action '{action}' for tool 'terrain'.", action,
+                    "Valid actions: create, configure, get_info, get_height, get_height_region, set_height, noise, erode, stamp, add_material, remove_material, get_material_at, blend_materials, set_hole, paint_material, import_heightmap, export_heightmap, sync, configure_clutter, regenerate_clutter, clear_clutter" )
+            };
+        }
+        catch ( Exception ex )
+        {
+            return HandlerBase.Error( ex.Message, action );
+        }
     }
 
     // ── create ───────────────────────────────────────────────────────────
