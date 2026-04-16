@@ -222,8 +222,7 @@ internal static class LightingHandler
         var sky = scene.CreateObject();
         sky.Name = "Sky Box";
         var skyComp = sky.Components.Create<SkyBox2D>();
-        var mat = Material.Load( skyMat );
-        if ( mat != null ) skyComp.SkyMaterial = mat;
+        skyComp.SkyMaterial = HandlerBase.RequireMaterial( skyMat, "create_light" );
         skyComp.SkyIndirectLighting = true;
 
         return HandlerBase.Success( new
@@ -388,10 +387,7 @@ internal static class LightingHandler
         var sky = go.Components.Create<SkyBox2D>();
 
         if ( !string.IsNullOrEmpty( skyMaterial ) )
-        {
-            var mat = Material.Load( skyMaterial );
-            if ( mat != null ) sky.SkyMaterial = mat;
-        }
+            sky.SkyMaterial = HandlerBase.RequireMaterial( skyMaterial, "configure_skybox" );
 
         var tintStr = HandlerBase.GetString( args, "tint" );
         if ( !string.IsNullOrEmpty( tintStr ) )
@@ -446,10 +442,7 @@ internal static class LightingHandler
 
         var matStr = HandlerBase.GetString( args, "material" );
         if ( !string.IsNullOrEmpty( matStr ) )
-        {
-            var mat = Material.Load( matStr );
-            if ( mat != null ) sky.SkyMaterial = mat;
-        }
+            sky.SkyMaterial = HandlerBase.RequireMaterial( matStr, "set_ambient_sky" );
 
         var tintStr = HandlerBase.GetString( args, "tint" );
         if ( !string.IsNullOrEmpty( tintStr ) )
