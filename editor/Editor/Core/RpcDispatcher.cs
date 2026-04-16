@@ -93,6 +93,9 @@ internal static class RpcDispatcher
                         "session"      => SessionHandler.Handle( action, args ),
                         "project"      => ProjectHandler.Handle( action, args ),
                         "terrain"      => TerrainHandler.Handle( action, args ),
+                        "trace"        => TraceHandler.Handle( action, args ),
+                        "player"       => PlayerHandler.Handle( action, args ),
+                        "networking"   => NetworkingHandler.Handle( action, args ),
                         _              => throw new InvalidOperationException( $"Tool '{toolName}' not found" )
                     };
                 }
