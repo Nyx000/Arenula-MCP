@@ -30,21 +30,5 @@ export const GetPageInput = z.object({
     .describe('Max content length in characters'),
 })
 
-export const GetApiTypeInput = z.object({
-  type_name: z
-    .string()
-    .min(1)
-    .describe('Type name (e.g. GameObject, Component, SceneFile)'),
-  include_methods: z
-    .boolean()
-    .default(true)
-    .describe('Include methods in output'),
-  include_properties: z
-    .boolean()
-    .default(true)
-    .describe('Include properties in output'),
-})
-
 export type SearchDocsParams = z.infer<typeof SearchDocsInput>
 export type GetPageParams = z.infer<typeof GetPageInput>
-export type GetApiTypeParams = z.infer<typeof GetApiTypeInput>
