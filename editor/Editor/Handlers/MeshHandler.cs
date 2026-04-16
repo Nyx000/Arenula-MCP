@@ -1024,22 +1024,11 @@ internal static class MeshHandler
         clutter.Seed = HandlerBase.GetInt( args, "seed", 0 );
 
         var mode = HandlerBase.GetString( args, "mode", "Volume" );
-        if ( Enum.TryParse<ClutterComponent.ClutterMode>( mode, true, out var cm ) )
-            clutter.Mode = cm;
+        clutter.Mode = HandlerBase.RequireEnum<ClutterComponent.ClutterMode>( mode, "mode", "create_clutter" );
 
         var defPath = HandlerBase.GetString( args, "definition" );
         if ( !string.IsNullOrEmpty( defPath ) )
-        {
-            var asset = AssetSystem.FindByPath( defPath );
-            if ( asset == null )
-                throw new InvalidOperationException(
-                    $"ClutterDefinition asset not found at '{defPath}'. User-created .clutter files must live under 'Assets/' (path relative to Assets/, no 'Assets/' prefix)." );
-            var def = asset.LoadResource<ClutterDefinition>();
-            if ( def == null )
-                throw new InvalidOperationException(
-                    $"Asset at '{defPath}' exists but is not a ClutterDefinition or failed to load." );
-            clutter.Clutter = def;
-        }
+            clutter.Clutter = HandlerBase.RequireResource<ClutterDefinition>( defPath, "create_clutter" );
 
         return HandlerBase.Success( new
         {
