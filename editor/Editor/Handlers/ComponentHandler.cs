@@ -137,13 +137,27 @@ internal static class ComponentHandler
 
         var comp = go.Components.Create( td );
 
+        // Post-condition: confirm component actually landed on the GameObject.
+        var verifiedComp = go.Components.GetAll().FirstOrDefault( c => c.Id == comp.Id );
+        if ( verifiedComp == null )
+            return HandlerBase.Error(
+                $"Component '{td.Name}' reported added but not found on '{go.Name}' after verification. " +
+                "Engine-level silent drop.",
+                "add",
+                "Check 'editor.get_log' for related engine warnings." );
+
         return HandlerBase.Success( new
         {
             id = go.Id.ToString(),
             name = go.Name,
             component_id = comp.Id.ToString(),
             component_type = comp.GetType().Name,
-            message = $"Added '{td.Name}' to '{go.Name}'."
+            message = $"Added '{td.Name}' to '{go.Name}'.",
+            verified = new
+            {
+                component_exists = true,
+                component_type = verifiedComp.GetType().Name
+            }
         } );
     }
 
@@ -167,9 +181,24 @@ internal static class ComponentHandler
         var comp = FindComponentByIdOrThrow( go, componentId, "remove" );
 
         var typeName = comp.GetType().Name;
+        var compGuid = comp.Id;
         comp.Destroy();
 
-        return HandlerBase.Confirm( $"Removed '{typeName}' from '{go.Name}'." );
+        // Post-condition: component should NOT be on GameObject after remove.
+        var stillPresent = go.Components.GetAll().Any( c => c.Id == compGuid );
+        if ( stillPresent )
+            return HandlerBase.Error(
+                $"Component reported removed but still present on '{go.Name}' after verification.",
+                "remove",
+                "Engine-level silent retention." );
+
+        return HandlerBase.Success( new
+        {
+            id = go.Id.ToString(),
+            name = go.Name,
+            message = $"Removed '{typeName}' from '{go.Name}'.",
+            verified = new { component_removed = true }
+        } );
     }
 
     // ── set_property ─────────────────────────────────────────────────
