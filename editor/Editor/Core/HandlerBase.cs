@@ -198,6 +198,18 @@ internal static class HandlerBase
 
     internal static object Confirm( string message ) => Text( message );
 
+    // ── Warning helpers ───────────────────────────────────────────────
+    // Construct a single warning entry for the response envelope's "warnings" array.
+    // Use when an operation partially succeeded and the caller should know what was skipped.
+
+    internal static object Warning( string message, string field = null, string suggestion = null )
+    {
+        var w = new Dictionary<string, string> { ["message"] = message };
+        if ( field != null ) w["field"] = field;
+        if ( suggestion != null ) w["suggestion"] = suggestion;
+        return w;
+    }
+
     // ── Project root resolution ───────────────────────────────────────
 
     /// <summary>
