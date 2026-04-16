@@ -36,10 +36,8 @@ internal static class TraceHandler
 
     // ── Shared: apply tag/ignore filters to a trace ──────────────────
 
-    private static SceneTrace ApplyFilters( SceneTrace trace, JsonElement args )
+    private static SceneTrace ApplyFilters( SceneTrace trace, JsonElement args, Scene scene )
     {
-        var scene = SceneHelpers.ResolveScene();
-
         var tags = HandlerBase.GetString( args, "tags" );
         if ( !string.IsNullOrEmpty( tags ) )
         {
@@ -116,7 +114,7 @@ internal static class TraceHandler
         var to = HandlerBase.ParseVector3( toStr );
 
         var trace = scene.Trace.Ray( from, to );
-        trace = ApplyFilters( trace, args );
+        trace = ApplyFilters( trace, args, scene );
         var result = trace.Run();
 
         return HandlerBase.Success( FormatResult( result ) );
@@ -143,7 +141,7 @@ internal static class TraceHandler
         var to = HandlerBase.ParseVector3( toStr );
 
         var trace = scene.Trace.Sphere( radius, from, to );
-        trace = ApplyFilters( trace, args );
+        trace = ApplyFilters( trace, args, scene );
         var result = trace.Run();
 
         return HandlerBase.Success( FormatResult( result ) );
@@ -170,7 +168,7 @@ internal static class TraceHandler
         var extents = HandlerBase.ParseVector3( sizeStr );
 
         var trace = scene.Trace.Box( extents, from, to );
-        trace = ApplyFilters( trace, args );
+        trace = ApplyFilters( trace, args, scene );
         var result = trace.Run();
 
         return HandlerBase.Success( FormatResult( result ) );
@@ -215,7 +213,7 @@ internal static class TraceHandler
                 var to = new Vector3( x, y, center.z - maxDepth );
 
                 var trace = scene.Trace.Ray( from, to );
-                trace = ApplyFilters( trace, args );
+                trace = ApplyFilters( trace, args, scene );
                 var result = trace.Run();
 
                 if ( result.Hit )
@@ -294,7 +292,7 @@ internal static class TraceHandler
             var to = HandlerBase.ParseVector3( toStr );
 
             var trace = scene.Trace.Ray( from, to );
-            trace = ApplyFilters( trace, args );
+            trace = ApplyFilters( trace, args, scene );
             var result = trace.Run();
             results.Add( FormatResult( result ) );
         }

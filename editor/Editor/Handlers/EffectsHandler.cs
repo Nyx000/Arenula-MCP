@@ -603,6 +603,9 @@ internal static class EffectsHandler
             sr.FlipVertical = fvEl.GetBoolean();
         if ( args.TryGetProperty( "playback_speed", out var psEl ) && psEl.ValueKind == JsonValueKind.Number )
             sr.PlaybackSpeed = psEl.GetSingle();
+        var animation = HandlerBase.GetString( args, "animation" );
+        if ( !string.IsNullOrEmpty( animation ) )
+            sr.StartingAnimationName = animation;
 
         var texFilter = HandlerBase.GetString( args, "texture_filter" );
         if ( !string.IsNullOrEmpty( texFilter ) )
