@@ -93,17 +93,15 @@ internal static class AssetManageHandler
             // Immediately register the new file with the asset system
             AssetSystem.RegisterFile( absPath );
 
-            // Post-condition: verify the asset is discoverable via the asset system.
-            var asset = AssetSystem.FindByPath( path );
-            var registered = asset != null;
-
-            // For types where we can resolve via ResourceLibrary, check that too.
-            // Path passed to ResourceLibrary is relative to Assets/ (strip the leading 'Assets/').
+            // Path passed to AssetSystem/ResourceLibrary is relative to Assets/ (strip the leading 'Assets/').
+            // AssetSystem.FindByPath normalizes to this form, so we must query with the stripped path.
             string resolvePath = path.Replace( '\\', '/' ).TrimStart( '/' );
             if ( resolvePath.StartsWith( "Assets/", StringComparison.OrdinalIgnoreCase ) )
                 resolvePath = resolvePath.Substring( "Assets/".Length );
 
-            if ( !registered )
+            // Post-condition: verify the asset is discoverable via the asset system.
+            var asset = AssetSystem.FindByPath( resolvePath );
+            if ( asset == null )
                 return HandlerBase.Error(
                     $"Asset file written to '{absPath}' but not registered with AssetSystem. " +
                     "The file may need a manual refresh or the editor's asset indexer hasn't run.",
