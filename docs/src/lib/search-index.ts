@@ -75,40 +75,45 @@ export function parseLlmsTxt(text: string): { pages: PageInfo[]; categories: str
  * Fetch llms.txt and seed the index with title-only entries.
  * Fast — one HTTP request, no page content fetched.
  */
-export async function ensureInitialized(): Promise<void> {
-  if (initialized) return
+let initPromise: Promise<void> | null = null
+
+export function ensureInitialized(): Promise<void> {
+  if (!initPromise) {
+    initPromise = doInit().catch(err => {
+      console.error('[arenula-docs] Failed to initialize search index:', err)
+      initPromise = null // Allow retry on next call
+    })
+  }
+  return initPromise
+}
+
+async function doInit(): Promise<void> {
+  const response = await fetch(LLMS_TXT_URL, {
+    headers: { 'User-Agent': USER_AGENT },
+    signal: AbortSignal.timeout(TIMEOUT),
+  })
+  if (!response.ok) {
+    throw new Error(`Failed to fetch llms.txt: HTTP ${response.status}`)
+  }
+
+  const text = await response.text()
+  const parsed = parseLlmsTxt(text)
+  pages = parsed.pages
+  categories = parsed.categories
   initialized = true
 
-  try {
-    const response = await fetch(LLMS_TXT_URL, {
-      headers: { 'User-Agent': USER_AGENT },
-      signal: AbortSignal.timeout(TIMEOUT),
+  for (const page of pages) {
+    index.add({
+      id: page.url,
+      title: page.title,
+      content: page.title,
+      url: page.url,
+      category: page.category,
+      enriched: false,
     })
-    if (!response.ok) {
-      console.error(`[arenula-docs] Failed to fetch llms.txt: HTTP ${response.status}`)
-      return
-    }
-
-    const text = await response.text()
-    const parsed = parseLlmsTxt(text)
-    pages = parsed.pages
-    categories = parsed.categories
-
-    for (const page of pages) {
-      index.add({
-        id: page.url,
-        title: page.title,
-        content: page.title,
-        url: page.url,
-        category: page.category,
-        enriched: false,
-      })
-    }
-
-    console.error(`[arenula-docs] Indexed ${pages.length} pages from llms.txt (title-only)`)
-  } catch (err) {
-    console.error('[arenula-docs] Failed to initialize search index:', err)
   }
+
+  console.error(`[arenula-docs] Indexed ${pages.length} pages from llms.txt (title-only)`)
 }
 
 /**

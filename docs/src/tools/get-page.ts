@@ -17,10 +17,10 @@ export async function getPage(params: GetPageParams): Promise<string> {
   if (!markdown) {
     const result = await fetchPage(url)
     markdown = result.markdown
-    cache.set(url, markdown)
+    cache.set(result.url, markdown)
 
-    // Enrich the search index with full page content
-    updateDocument(url, result.title, markdown)
+    // Enrich the search index with full page content (use normalized URL)
+    updateDocument(result.url, result.title, markdown)
   }
 
   const chunk = markdown.slice(start_index, start_index + max_length)
