@@ -1,7 +1,7 @@
 import type { GetPageParams } from '../schemas/index.js'
 import { fetchPage } from '../lib/fetcher.js'
 import { Cache } from '../lib/cache.js'
-import { addDocument } from '../lib/search-index.js'
+import { updateDocument } from '../lib/search-index.js'
 
 const cache = new Cache<string>(
   parseInt(process.env.SBOX_DOCS_CACHE_TTL || '14400') * 1000,
@@ -11,17 +11,18 @@ const cache = new Cache<string>(
 export async function getPage(params: GetPageParams): Promise<string> {
   const { url, start_index, max_length } = params
 
-  // Check cache first
   let markdown = cache.get(url)
+  const cached = markdown !== undefined
+
   if (!markdown) {
     const result = await fetchPage(url)
     markdown = result.markdown
     cache.set(url, markdown)
-    // Also add to search index for future searches
-    addDocument({ id: url, title: result.title, content: markdown, url })
+
+    // Enrich the search index with full page content
+    updateDocument(url, result.title, markdown)
   }
 
-  // Apply chunking
   const chunk = markdown.slice(start_index, start_index + max_length)
   const hasMore = start_index + max_length < markdown.length
 
@@ -32,5 +33,6 @@ export async function getPage(params: GetPageParams): Promise<string> {
     endIndex: start_index + chunk.length,
     totalLength: markdown.length,
     hasMore,
+    cached,
   })
 }
