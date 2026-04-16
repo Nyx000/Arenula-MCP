@@ -1438,7 +1438,25 @@ internal static class TerrainHandler
         var modeParsed = HandlerBase.ResolveEnum<Sandbox.Clutter.ClutterComponent.ClutterMode>( modeStr, "mode", "configure_clutter" );
         if ( modeParsed.HasValue ) clutter.Mode = modeParsed.Value;
 
-        return HandlerBase.Confirm( $"Configured ClutterComponent on '{go.Name}': seed={clutter.Seed}, mode={clutter.Mode}." );
+        // Post-condition: Clutter reference should be non-null if a definition path was provided.
+        var defAssigned = clutter.Clutter;
+        if ( !string.IsNullOrEmpty( defPath ) && defAssigned == null )
+            return HandlerBase.Error(
+                $"configure_clutter: definition '{defPath}' was provided but Clutter field is null after assignment. " +
+                "ResourceLibrary silently failed to resolve the asset.",
+                "configure_clutter",
+                "Confirm the .clutter file is under 'Assets/' via 'asset_query.get_status'." );
+
+        return HandlerBase.Success( new
+        {
+            message = $"Configured ClutterComponent on '{go.Name}': seed={clutter.Seed}, mode={clutter.Mode}.",
+            verified = new
+            {
+                clutter_assigned = defAssigned?.ResourceName,
+                seed = clutter.Seed,
+                mode = clutter.Mode.ToString()
+            }
+        } );
     }
 
     // ── regenerate_clutter ──────────────────────────────────────────
