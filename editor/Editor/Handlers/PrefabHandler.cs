@@ -11,8 +11,6 @@ namespace Arenula;
 /// <summary>
 /// prefab tool: instantiate, get_structure, get_instances, break, update,
 /// create, save_overrides, revert, get_overrides.
-/// SceneToolHandlers.GetPrefabInstances, OzmiumEditorHandlers.BreakFromPrefab/UpdateFromPrefab.
-/// New actions: create, save_overrides, revert, get_overrides.
 /// </summary>
 internal static class PrefabHandler
 {
@@ -48,7 +46,7 @@ internal static class PrefabHandler
         var scene = SceneHelpers.ResolveScene();
         if ( scene == null ) return HandlerBase.Error( "No active scene.", "instantiate" );
 
-        var path = SceneHelpers.NormalizePath( HandlerBase.GetString( args, "path" ) );
+        var path = HandlerBase.GetAssetPath( args );
         if ( string.IsNullOrEmpty( path ) )
             return HandlerBase.Error( "Missing required 'path' parameter.", "instantiate" );
 
@@ -101,7 +99,7 @@ internal static class PrefabHandler
 
     private static object GetStructure( JsonElement args )
     {
-        var path = SceneHelpers.NormalizePath( HandlerBase.GetString( args, "path" ) );
+        var path = HandlerBase.GetAssetPath( args );
         if ( string.IsNullOrEmpty( path ) )
             return HandlerBase.Error( "Missing required 'path' parameter.", "get_structure" );
 

@@ -138,7 +138,7 @@ internal static class AssetQueryHandler
 
     private static object Open( JsonElement args )
     {
-        var path = SceneHelpers.NormalizePath( HandlerBase.GetString( args, "path" ) );
+        var path = HandlerBase.GetAssetPath( args );
         if ( string.IsNullOrEmpty( path ) )
             return HandlerBase.Error( "Missing required 'path' parameter.", "open" );
 
@@ -154,7 +154,7 @@ internal static class AssetQueryHandler
 
     private static object GetDependencies( JsonElement args )
     {
-        var path = SceneHelpers.NormalizePath( HandlerBase.GetString( args, "path" ) );
+        var path = HandlerBase.GetAssetPath( args );
         if ( string.IsNullOrEmpty( path ) )
             return HandlerBase.Error( "Missing required 'path' parameter.", "get_dependencies" );
 
@@ -195,7 +195,7 @@ internal static class AssetQueryHandler
 
     private static object GetModelInfo( JsonElement args )
     {
-        var path = SceneHelpers.NormalizePath( HandlerBase.GetString( args, "path" ) );
+        var path = HandlerBase.GetAssetPath( args );
         var format = HandlerBase.GetString( args, "format", "concise" );
 
         if ( string.IsNullOrEmpty( path ) )
@@ -231,7 +231,7 @@ internal static class AssetQueryHandler
 
     private static object GetMaterialProperties( JsonElement args )
     {
-        var path = SceneHelpers.NormalizePath( HandlerBase.GetString( args, "path" ) );
+        var path = HandlerBase.GetAssetPath( args );
         if ( string.IsNullOrEmpty( path ) )
             return HandlerBase.Error( "Missing required 'path' parameter.", "get_material_properties" );
 
@@ -248,7 +248,6 @@ internal static class AssetQueryHandler
     }
 
     // ── get_mesh_info ─────────────────────────────────────────────────────
-    // Partially ported from MeshEditHandlers.GetMeshInfo
     // Uses reflection to read EditorMeshComponent's PolygonMesh data
 
     private static object GetMeshInfo( JsonElement args )
@@ -408,7 +407,7 @@ internal static class AssetQueryHandler
 
     private static object GetStatus( JsonElement args )
     {
-        var path = SceneHelpers.NormalizePath( HandlerBase.GetString( args, "path" ) );
+        var path = HandlerBase.GetAssetPath( args );
         if ( string.IsNullOrEmpty( path ) )
             return HandlerBase.Error( "Missing required 'path' parameter.", "get_status" );
 
@@ -445,7 +444,7 @@ internal static class AssetQueryHandler
 
     private static object GetJson( JsonElement args )
     {
-        var path = SceneHelpers.NormalizePath( HandlerBase.GetString( args, "path" ) );
+        var path = HandlerBase.GetAssetPath( args );
         if ( string.IsNullOrEmpty( path ) )
             return HandlerBase.Error( "Missing required 'path' parameter.", "get_json" );
 
@@ -469,7 +468,7 @@ internal static class AssetQueryHandler
 
     internal static object GetReferences( JsonElement args )
     {
-        var path = SceneHelpers.NormalizePath( HandlerBase.GetString( args, "path" ) );
+        var path = HandlerBase.GetAssetPath( args );
         var deep = HandlerBase.GetBool( args, "deep", false );
 
         if ( string.IsNullOrEmpty( path ) )

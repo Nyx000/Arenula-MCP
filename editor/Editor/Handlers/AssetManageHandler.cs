@@ -131,7 +131,7 @@ internal static class AssetManageHandler
 
     private static object Delete( JsonElement args )
     {
-        var path = SceneHelpers.NormalizePath( HandlerBase.GetString( args, "path" ) );
+        var path = HandlerBase.GetAssetPath( args );
         if ( string.IsNullOrEmpty( path ) )
             return HandlerBase.Error( "Missing required 'path' parameter.", "delete" );
 
@@ -171,7 +171,7 @@ internal static class AssetManageHandler
 
     private static object Rename( JsonElement args )
     {
-        var path = SceneHelpers.NormalizePath( HandlerBase.GetString( args, "path" ) );
+        var path = HandlerBase.GetAssetPath( args );
         var newName = HandlerBase.GetString( args, "new_name" );
 
         if ( string.IsNullOrEmpty( path ) )
@@ -228,7 +228,7 @@ internal static class AssetManageHandler
 
     private static object Move( JsonElement args )
     {
-        var path = SceneHelpers.NormalizePath( HandlerBase.GetString( args, "path" ) );
+        var path = HandlerBase.GetAssetPath( args );
         var destination = HandlerBase.GetString( args, "destination" );
 
         if ( string.IsNullOrEmpty( path ) )
@@ -285,7 +285,7 @@ internal static class AssetManageHandler
 
     private static object Save( JsonElement args )
     {
-        var path = SceneHelpers.NormalizePath( HandlerBase.GetString( args, "path" ) );
+        var path = HandlerBase.GetAssetPath( args );
         if ( string.IsNullOrEmpty( path ) )
             return HandlerBase.Error( "Missing required 'path' parameter.", "save" );
 
@@ -309,7 +309,7 @@ internal static class AssetManageHandler
 
     private static object Reload( JsonElement args )
     {
-        var path = SceneHelpers.NormalizePath( HandlerBase.GetString( args, "path" ) );
+        var path = HandlerBase.GetAssetPath( args );
         if ( string.IsNullOrEmpty( path ) )
             return HandlerBase.Error( "Missing required 'path' parameter.", "reload" );
 
