@@ -71,9 +71,7 @@ internal static class EffectsHandler
 
     private static object CreateParticle( Scene scene, JsonElement args, Vector3 position )
     {
-        var go = scene.CreateObject();
-        go.Name = HandlerBase.GetString( args, "name" ) ?? "Particle Effect";
-        go.WorldPosition = position;
+        var go = SceneHelpers.CreateChildObject( scene, args, "Particle Effect", position );
 
         var pe = go.Components.Create<ParticleEffect>();
         pe.MaxParticles = HandlerBase.GetInt( args, "max_particles", 1000 );
@@ -92,9 +90,7 @@ internal static class EffectsHandler
 
     private static object CreateFog( Scene scene, JsonElement args, Vector3 position )
     {
-        var go = scene.CreateObject();
-        go.Name = HandlerBase.GetString( args, "name" ) ?? "Fog Volume";
-        go.WorldPosition = position;
+        var go = SceneHelpers.CreateChildObject( scene, args, "Fog Volume", position );
 
         var fogType = HandlerBase.GetString( args, "fog_type", "gradient" );
 
@@ -128,9 +124,7 @@ internal static class EffectsHandler
 
     private static object CreateBeam( Scene scene, JsonElement args, Vector3 position )
     {
-        var go = scene.CreateObject();
-        go.Name = HandlerBase.GetString( args, "name" ) ?? "Beam Effect";
-        go.WorldPosition = position;
+        var go = SceneHelpers.CreateChildObject( scene, args, "Beam Effect", position );
 
         var beam = go.Components.Create<BeamEffect>();
         if ( HandlerBase.TryGetFloat( args, "scale", out var sc ) ) beam.Scale = sc;
@@ -156,9 +150,7 @@ internal static class EffectsHandler
 
     private static object CreateRope( Scene scene, JsonElement args, Vector3 position )
     {
-        var go = scene.CreateObject();
-        go.Name = HandlerBase.GetString( args, "name" ) ?? "Verlet Rope";
-        go.WorldPosition = position;
+        var go = SceneHelpers.CreateChildObject( scene, args, "Verlet Rope", position );
 
         var rope = go.Components.Create<VerletRope>();
         rope.SegmentCount = HandlerBase.GetInt( args, "segment_count", 16 );
@@ -181,9 +173,7 @@ internal static class EffectsHandler
 
     private static object CreateRadiusDamage( Scene scene, JsonElement args, Vector3 position )
     {
-        var go = scene.CreateObject();
-        go.Name = HandlerBase.GetString( args, "name" ) ?? "Radius Damage";
-        go.WorldPosition = position;
+        var go = SceneHelpers.CreateChildObject( scene, args, "Radius Damage", position );
 
         var rd = go.Components.Create<RadiusDamage>();
         if ( HandlerBase.TryGetFloat( args, "radius", out var r ) ) rd.Radius = r;
@@ -216,9 +206,7 @@ internal static class EffectsHandler
         // Supports: text, line, sprite, trail, model_renderer, skinned_model, screen_panel
         var renderType = HandlerBase.GetString( args, "render_type", "" );
 
-        var go = scene.CreateObject();
-        go.Name = HandlerBase.GetString( args, "name" ) ?? "Render Entity";
-        go.WorldPosition = position;
+        var go = SceneHelpers.CreateChildObject( scene, args, "Render Entity", position );
 
         switch ( renderType.ToLowerInvariant() )
         {
@@ -334,9 +322,7 @@ internal static class EffectsHandler
 
     private static object CreateSprite( Scene scene, JsonElement args, Vector3 position )
     {
-        var go = scene.CreateObject();
-        go.Name = HandlerBase.GetString( args, "name" ) ?? "Sprite";
-        go.WorldPosition = position;
+        var go = SceneHelpers.CreateChildObject( scene, args, "Sprite", position );
 
         var sr = go.Components.Create<SpriteRenderer>();
 
@@ -389,9 +375,7 @@ internal static class EffectsHandler
         if ( string.IsNullOrEmpty( modelPath ) )
             return HandlerBase.Error( "Missing required 'model' parameter for prop type.", "create" );
 
-        var go = scene.CreateObject();
-        go.Name = HandlerBase.GetString( args, "name" ) ?? "Prop";
-        go.WorldPosition = position;
+        var go = SceneHelpers.CreateChildObject( scene, args, "Prop", position );
 
         var prop = go.Components.Create<Prop>();
         var resolvedModel = HandlerBase.ResolveModel( modelPath, "create_prop" );
@@ -422,9 +406,7 @@ internal static class EffectsHandler
 
     private static object CreateWorldPanel( Scene scene, JsonElement args, Vector3 position )
     {
-        var go = scene.CreateObject();
-        go.Name = HandlerBase.GetString( args, "name" ) ?? "World Panel";
-        go.WorldPosition = position;
+        var go = SceneHelpers.CreateChildObject( scene, args, "World Panel", position );
 
         var wp = go.Components.Create<WorldPanel>();
 

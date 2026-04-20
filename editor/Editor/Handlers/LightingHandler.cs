@@ -160,9 +160,7 @@ internal static class LightingHandler
 
     private static object CreateAmbient( Scene scene, JsonElement args, Vector3 position )
     {
-        var go = scene.CreateObject();
-        go.Name = HandlerBase.GetString( args, "name" ) ?? "Ambient Light";
-        go.WorldPosition = position;
+        var go = SceneHelpers.CreateChildObject( scene, args, "Ambient Light", position );
 
         var amb = go.Components.Create<AmbientLight>();
         var colorStr = HandlerBase.GetString( args, "color", "Gray" );
@@ -227,9 +225,7 @@ internal static class LightingHandler
 
     private static object CreateIndirectVolume( Scene scene, JsonElement args, Vector3 position )
     {
-        var go = scene.CreateObject();
-        go.Name = HandlerBase.GetString( args, "name" ) ?? "Indirect Light Volume";
-        go.WorldPosition = position;
+        var go = SceneHelpers.CreateChildObject( scene, args, "Indirect Light Volume", position );
 
         var ilg = go.Components.Create<IndirectLightVolume>();
 
@@ -366,9 +362,7 @@ internal static class LightingHandler
         var position = posStr != null ? HandlerBase.ParseVector3( posStr ) : Vector3.Zero;
         var skyMaterial = HandlerBase.GetString( args, "material", "materials/skybox/skybox_day_01.vmat" );
 
-        var go = scene.CreateObject();
-        go.Name = HandlerBase.GetString( args, "name" ) ?? "Sky Box";
-        go.WorldPosition = position;
+        var go = SceneHelpers.CreateChildObject( scene, args, "Sky Box", position );
 
         var sky = go.Components.Create<SkyBox2D>();
 

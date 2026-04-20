@@ -1015,9 +1015,7 @@ internal static class MeshHandler
         var posStr = HandlerBase.GetString( args, "position" );
         var position = posStr != null ? HandlerBase.ParseVector3( posStr ) : Vector3.Zero;
 
-        var go = scene.CreateObject();
-        go.Name = HandlerBase.GetString( args, "name" ) ?? "Clutter";
-        go.WorldPosition = position;
+        var go = SceneHelpers.CreateChildObject( scene, args, "Clutter", position );
 
         var clutter = go.Components.Create<ClutterComponent>();
         clutter.Seed = HandlerBase.GetInt( args, "seed", 0 );

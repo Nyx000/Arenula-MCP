@@ -93,9 +93,7 @@ internal static class NavmeshHandler
         var posStr = HandlerBase.GetString( args, "position" );
         var position = posStr != null ? HandlerBase.ParseVector3( posStr ) : Vector3.Zero;
 
-        var go = scene.CreateObject();
-        go.Name = HandlerBase.GetString( args, "name" ) ?? "NavMesh Area";
-        go.WorldPosition = position;
+        var go = SceneHelpers.CreateChildObject( scene, args, "NavMesh Area", position );
 
         var area = go.Components.Create<NavMeshArea>();
         area.IsBlocker = HandlerBase.GetBool( args, "is_blocker", true );
@@ -137,9 +135,7 @@ internal static class NavmeshHandler
         // Place the GO at the midpoint
         var midpoint = ( startPos + endPos ) / 2f;
 
-        var go = scene.CreateObject();
-        go.Name = HandlerBase.GetString( args, "name" ) ?? "NavMesh Link";
-        go.WorldPosition = midpoint;
+        var go = SceneHelpers.CreateChildObject( scene, args, "NavMesh Link", midpoint );
 
         var link = go.Components.Create<NavMeshLink>();
         link.LocalStartPosition = startPos - midpoint;

@@ -64,9 +64,7 @@ internal static class AudioHandler
 
     private static object CreateSoundPoint( Scene scene, JsonElement args, Vector3 position )
     {
-        var go = scene.CreateObject();
-        go.Name = HandlerBase.GetString( args, "name" ) ?? "Sound Point";
-        go.WorldPosition = position;
+        var go = SceneHelpers.CreateChildObject( scene, args, "Sound Point", position );
 
         var snd = go.Components.Create<SoundPointComponent>();
 
@@ -90,9 +88,7 @@ internal static class AudioHandler
 
     private static object CreateSoundscape( Scene scene, JsonElement args, Vector3 position )
     {
-        var go = scene.CreateObject();
-        go.Name = HandlerBase.GetString( args, "name" ) ?? "Soundscape Trigger";
-        go.WorldPosition = position;
+        var go = SceneHelpers.CreateChildObject( scene, args, "Soundscape Trigger", position );
 
         var st = go.Components.Create<SoundscapeTrigger>();
 
@@ -124,9 +120,7 @@ internal static class AudioHandler
 
     private static object CreateSoundBox( Scene scene, JsonElement args, Vector3 position )
     {
-        var go = scene.CreateObject();
-        go.Name = HandlerBase.GetString( args, "name" ) ?? "Sound Box";
-        go.WorldPosition = position;
+        var go = SceneHelpers.CreateChildObject( scene, args, "Sound Box", position );
 
         var sb = go.Components.Create<SoundBoxComponent>();
         if ( HandlerBase.TryGetFloat( args, "volume", out var v ) ) sb.Volume = v;
@@ -152,9 +146,7 @@ internal static class AudioHandler
 
     private static object CreateDspVolume( Scene scene, JsonElement args, Vector3 position )
     {
-        var go = scene.CreateObject();
-        go.Name = HandlerBase.GetString( args, "name" ) ?? "DSP Volume";
-        go.WorldPosition = position;
+        var go = SceneHelpers.CreateChildObject( scene, args, "DSP Volume", position );
 
         var dsp = go.Components.Create<DspVolume>();
         dsp.Priority = HandlerBase.GetInt( args, "priority", 0 );
@@ -200,9 +192,7 @@ internal static class AudioHandler
 
     private static object CreateAudioListener( Scene scene, JsonElement args, Vector3 position )
     {
-        var go = scene.CreateObject();
-        go.Name = HandlerBase.GetString( args, "name" ) ?? "Audio Listener";
-        go.WorldPosition = position;
+        var go = SceneHelpers.CreateChildObject( scene, args, "Audio Listener", position );
 
         var listener = go.Components.Create<AudioListener>();
         listener.UseCameraDirection = HandlerBase.GetBool( args, "use_camera_direction", true );

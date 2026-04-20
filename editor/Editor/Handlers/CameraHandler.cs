@@ -52,10 +52,7 @@ internal static class CameraHandler
                              HandlerBase.ParseVector3( rotStr ).z )
             : Rotation.From( -90, 0, 0 );
 
-        var go = scene.CreateObject();
-        go.Name = HandlerBase.GetString( args, "name" ) ?? "Camera";
-        go.WorldPosition = position;
-        go.WorldRotation = rotation;
+        var go = SceneHelpers.CreateChildObject( scene, args, "Camera", position, rotation );
 
         var cam = go.Components.Create<CameraComponent>();
         if ( HandlerBase.TryGetFloat( args, "fov", out var fov ) ) cam.FieldOfView = fov;
