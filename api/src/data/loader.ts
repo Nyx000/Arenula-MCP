@@ -7,7 +7,8 @@ const CACHE_DIR = process.env.SBOX_CACHE_DIR || join(homedir(), '.arenula-api')
 const CONFIG_PATH = join(CACHE_DIR, 'config.json')
 const DATA_PATH = join(CACHE_DIR, 'api-data.json')
 
-const DEFAULT_URL = process.env.SBOX_API_URL || 'https://cdn.sbox.game/releases/2026-04-15-19-51-43.zip.json'
+// Release: 2026-04-15-19-51-43 — bump via `npm run bump-cdn <YYYY-MM-DD-HH-MM-SS>`
+const FALLBACK_URL = process.env.SBOX_API_URL || 'https://cdn.sbox.game/releases/2026-04-15-19-51-43.zip.json'
 
 function ensureCacheDir(): void {
   if (!existsSync(CACHE_DIR)) {
@@ -19,7 +20,7 @@ function readConfig(): CacheConfig {
   if (existsSync(CONFIG_PATH)) {
     return JSON.parse(readFileSync(CONFIG_PATH, 'utf-8'))
   }
-  return { url: DEFAULT_URL }
+  return { url: FALLBACK_URL }
 }
 
 function writeConfig(config: CacheConfig): void {

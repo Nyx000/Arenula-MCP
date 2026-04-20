@@ -6,7 +6,8 @@
   "scripts": {
     "build": "npm run build --prefix api && npm run build --prefix docs",
     "install-all": "npm install --prefix api && npm install --prefix docs",
-    "setup": "npm run install-all && npm run build"
+    "setup": "npm run install-all && npm run build",
+    "bump-cdn": "node scripts/bump-cdn.mjs"
   },
   "repository": {
     "type": "git",
