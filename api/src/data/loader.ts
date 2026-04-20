@@ -7,7 +7,7 @@ const CACHE_DIR = process.env.SBOX_CACHE_DIR || join(homedir(), '.arenula-api')
 const CONFIG_PATH = join(CACHE_DIR, 'config.json')
 const DATA_PATH = join(CACHE_DIR, 'api-data.json')
 
-const DEFAULT_URL = process.env.SBOX_API_URL || 'https://cdn.sbox.game/releases/2026-04-04-08-54-59.zip.json'
+const DEFAULT_URL = process.env.SBOX_API_URL || 'https://cdn.sbox.game/releases/2026-04-15-19-51-43.zip.json'
 
 function ensureCacheDir(): void {
   if (!existsSync(CACHE_DIR)) {
