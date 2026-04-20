@@ -287,7 +287,7 @@ internal static class LightingHandler
             return HandlerBase.Error( "Missing required 'id' parameter.", "configure" );
 
         var go = SceneHelpers.FindByIdOrThrow( scene, id, "configure" );
-        var light = go.Components.GetAll().FirstOrDefault( c => c is Light ) as Light;
+        var light = SceneHelpers.GetComponentByIdOrFirst<Light>( go, args );
         if ( light == null )
             return HandlerBase.Error( $"No Light component found on '{go.Name}'.", "configure" );
 
@@ -420,7 +420,7 @@ internal static class LightingHandler
         if ( !string.IsNullOrEmpty( id ) )
         {
             var go = SceneHelpers.FindByIdOrThrow( scene, id, "set_skybox" );
-            sky = go.Components.GetAll().FirstOrDefault( c => c is SkyBox2D ) as SkyBox2D;
+            sky = SceneHelpers.GetComponentByIdOrFirst<SkyBox2D>( go, args );
             if ( sky == null )
                 return HandlerBase.Error( $"No SkyBox2D component found on '{go.Name}'.", "set_skybox" );
         }

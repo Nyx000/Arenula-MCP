@@ -514,12 +514,7 @@ internal static class EffectsHandler
 
         var go = SceneHelpers.FindByIdOrThrow( scene, id, "configure_sprite" );
 
-        SpriteRenderer sr = null;
-        var compId = HandlerBase.GetString( args, "component_id" );
-        if ( !string.IsNullOrEmpty( compId ) && Guid.TryParse( compId, out var cGuid ) )
-            sr = go.Components.GetAll().FirstOrDefault( c => c is SpriteRenderer && c.Id == cGuid ) as SpriteRenderer;
-        else
-            sr = go.Components.Get<SpriteRenderer>();
+        var sr = SceneHelpers.GetComponentByIdOrFirst<SpriteRenderer>( go, args );
 
         if ( sr == null )
             return HandlerBase.Error( $"No SpriteRenderer found on '{go.Name}'.", "configure_sprite" );
@@ -594,12 +589,7 @@ internal static class EffectsHandler
 
         var go = SceneHelpers.FindByIdOrThrow( scene, id, "configure_prop" );
 
-        Prop prop = null;
-        var compId = HandlerBase.GetString( args, "component_id" );
-        if ( !string.IsNullOrEmpty( compId ) && Guid.TryParse( compId, out var cGuid ) )
-            prop = go.Components.GetAll().FirstOrDefault( c => c is Prop && c.Id == cGuid ) as Prop;
-        else
-            prop = go.Components.Get<Prop>();
+        var prop = SceneHelpers.GetComponentByIdOrFirst<Prop>( go, args );
 
         if ( prop == null )
             return HandlerBase.Error( $"No Prop component found on '{go.Name}'.", "configure_prop" );
@@ -647,12 +637,7 @@ internal static class EffectsHandler
 
         var go = SceneHelpers.FindByIdOrThrow( scene, id, "configure_world_panel" );
 
-        WorldPanel wp = null;
-        var compId = HandlerBase.GetString( args, "component_id" );
-        if ( !string.IsNullOrEmpty( compId ) && Guid.TryParse( compId, out var cGuid ) )
-            wp = go.Components.GetAll().FirstOrDefault( c => c is WorldPanel && c.Id == cGuid ) as WorldPanel;
-        else
-            wp = go.Components.Get<WorldPanel>();
+        var wp = SceneHelpers.GetComponentByIdOrFirst<WorldPanel>( go, args );
 
         if ( wp == null )
             return HandlerBase.Error( $"No WorldPanel found on '{go.Name}'.", "configure_world_panel" );
