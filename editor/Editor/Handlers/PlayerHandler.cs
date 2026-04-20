@@ -49,9 +49,7 @@ internal static class PlayerHandler
 
     private static object Create( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "create" );
+        var scene = HandlerBase.RequireScene( "create" );
 
         var id = HandlerBase.GetString( args, "id" );
         GameObject go;
@@ -92,9 +90,7 @@ internal static class PlayerHandler
 
     private static object ConfigureMovement( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "configure_movement" );
+        var scene = HandlerBase.RequireScene( "configure_movement" );
 
         var id = HandlerBase.GetString( args, "id" );
         if ( string.IsNullOrEmpty( id ) )
@@ -120,9 +116,7 @@ internal static class PlayerHandler
 
     private static object ConfigureCamera( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "configure_camera" );
+        var scene = HandlerBase.RequireScene( "configure_camera" );
 
         var id = HandlerBase.GetString( args, "id" );
         if ( string.IsNullOrEmpty( id ) )
@@ -148,9 +142,7 @@ internal static class PlayerHandler
 
     private static object ConfigureBody( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "configure_body" );
+        var scene = HandlerBase.RequireScene( "configure_body" );
 
         var id = HandlerBase.GetString( args, "id" );
         if ( string.IsNullOrEmpty( id ) )
@@ -179,9 +171,7 @@ internal static class PlayerHandler
 
     private static object ConfigureInteraction( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "configure_interaction" );
+        var scene = HandlerBase.RequireScene( "configure_interaction" );
 
         var id = HandlerBase.GetString( args, "id" );
         if ( string.IsNullOrEmpty( id ) )

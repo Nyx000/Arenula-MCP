@@ -43,9 +43,7 @@ internal static class PhysicsHandler
 
     private static object AddCollider( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "add_collider" );
+        var scene = HandlerBase.RequireScene( "add_collider" );
 
         var id = HandlerBase.GetString( args, "id" );
         if ( string.IsNullOrEmpty( id ) )
@@ -196,9 +194,7 @@ internal static class PhysicsHandler
 
     private static object ConfigureCollider( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "configure_collider" );
+        var scene = HandlerBase.RequireScene( "configure_collider" );
 
         var id = HandlerBase.GetString( args, "id" );
         if ( string.IsNullOrEmpty( id ) )
@@ -259,9 +255,7 @@ internal static class PhysicsHandler
 
     private static object AddRigidbody( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "add_rigidbody" );
+        var scene = HandlerBase.RequireScene( "add_rigidbody" );
 
         var id = HandlerBase.GetString( args, "id" );
         if ( string.IsNullOrEmpty( id ) )
@@ -291,9 +285,7 @@ internal static class PhysicsHandler
 
     private static object CreateModelPhysics( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "create_model_physics" );
+        var scene = HandlerBase.RequireScene( "create_model_physics" );
 
         // This action can work on an existing GO (via id) or create a new one
         var id = HandlerBase.GetString( args, "id" );
@@ -332,9 +324,7 @@ internal static class PhysicsHandler
 
     private static object CreateCharacterController( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "create_character_controller" );
+        var scene = HandlerBase.RequireScene( "create_character_controller" );
 
         // This action can work on existing GO (via id) or create a new one
         var id = HandlerBase.GetString( args, "id" );
@@ -375,9 +365,7 @@ internal static class PhysicsHandler
 
     private static object CreateJoint( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "create_joint" );
+        var scene = HandlerBase.RequireScene( "create_joint" );
 
         var type = HandlerBase.GetString( args, "type", "fixed" );
         var bodyA = HandlerBase.GetString( args, "body_a" );

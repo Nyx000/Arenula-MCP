@@ -40,9 +40,7 @@ internal static class LightingHandler
 
     private static object Create( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "create" );
+        var scene = HandlerBase.RequireScene( "create" );
 
         var type = HandlerBase.GetString( args, "type", "point" );
         var posStr = HandlerBase.GetString( args, "position" );
@@ -263,9 +261,7 @@ internal static class LightingHandler
 
     private static object Configure( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "configure" );
+        var scene = HandlerBase.RequireScene( "configure" );
 
         var id = HandlerBase.GetString( args, "id" );
         if ( string.IsNullOrEmpty( id ) )
@@ -354,9 +350,7 @@ internal static class LightingHandler
 
     private static object CreateSkybox( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "create_skybox" );
+        var scene = HandlerBase.RequireScene( "create_skybox" );
 
         var posStr = HandlerBase.GetString( args, "position" );
         var position = posStr != null ? HandlerBase.ParseVector3( posStr ) : Vector3.Zero;
@@ -394,9 +388,7 @@ internal static class LightingHandler
 
     private static object SetSkybox( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "set_skybox" );
+        var scene = HandlerBase.RequireScene( "set_skybox" );
 
         SkyBox2D sky = null;
         var id = HandlerBase.GetString( args, "id" );

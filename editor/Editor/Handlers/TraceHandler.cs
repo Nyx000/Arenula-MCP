@@ -155,9 +155,7 @@ internal static class TraceHandler
 
     private static object Ray( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "ray" );
+        var scene = HandlerBase.RequireScene( "ray" );
 
         var fromStr = HandlerBase.GetString( args, "from" );
         var toStr = HandlerBase.GetString( args, "to" );
@@ -177,9 +175,7 @@ internal static class TraceHandler
 
     private static object SphereCast( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "sphere_cast" );
+        var scene = HandlerBase.RequireScene( "sphere_cast" );
 
         var fromStr = HandlerBase.GetString( args, "from" );
         var toStr = HandlerBase.GetString( args, "to" );
@@ -204,9 +200,7 @@ internal static class TraceHandler
 
     private static object BoxCast( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "box_cast" );
+        var scene = HandlerBase.RequireScene( "box_cast" );
 
         var fromStr = HandlerBase.GetString( args, "from" );
         var toStr = HandlerBase.GetString( args, "to" );
@@ -267,9 +261,7 @@ internal static class TraceHandler
 
     private static object SampleGrid( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "sample_grid" );
+        var scene = HandlerBase.RequireScene( "sample_grid" );
 
         var centerStr = HandlerBase.GetString( args, "center" );
         var areaSizeStr = HandlerBase.GetString( args, "area_size" );
@@ -360,9 +352,7 @@ internal static class TraceHandler
 
     private static object MultiRay( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "multi_ray" );
+        var scene = HandlerBase.RequireScene( "multi_ray" );
 
         if ( !args.TryGetProperty( "rays", out var raysEl ) || raysEl.ValueKind != JsonValueKind.Array )
             return HandlerBase.Error( "Missing required 'rays' parameter (JSON array of {from, to} objects).", "multi_ray" );

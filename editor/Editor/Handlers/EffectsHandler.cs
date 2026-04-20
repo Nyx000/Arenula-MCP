@@ -43,9 +43,7 @@ internal static class EffectsHandler
 
     private static object Create( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "create" );
+        var scene = HandlerBase.RequireScene( "create" );
 
         var type = HandlerBase.GetString( args, "type", "particle" );
         var posStr = HandlerBase.GetString( args, "position" );
@@ -270,9 +268,7 @@ internal static class EffectsHandler
 
     private static object ConfigureParticle( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "configure_particle" );
+        var scene = HandlerBase.RequireScene( "configure_particle" );
 
         var id = HandlerBase.GetString( args, "id" );
         if ( string.IsNullOrEmpty( id ) )
@@ -295,9 +291,7 @@ internal static class EffectsHandler
 
     private static object ConfigurePostProcessing( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "configure_post_processing" );
+        var scene = HandlerBase.RequireScene( "configure_post_processing" );
 
         var id = HandlerBase.GetString( args, "id" );
         if ( string.IsNullOrEmpty( id ) )
@@ -440,9 +434,7 @@ internal static class EffectsHandler
 
     private static object ConfigureSprite( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "configure_sprite" );
+        var scene = HandlerBase.RequireScene( "configure_sprite" );
 
         var id = HandlerBase.GetString( args, "id" );
         if ( string.IsNullOrEmpty( id ) )
@@ -501,9 +493,7 @@ internal static class EffectsHandler
 
     private static object ConfigureProp( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "configure_prop" );
+        var scene = HandlerBase.RequireScene( "configure_prop" );
 
         var id = HandlerBase.GetString( args, "id" );
         if ( string.IsNullOrEmpty( id ) )
@@ -544,9 +534,7 @@ internal static class EffectsHandler
 
     private static object ConfigureWorldPanel( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "configure_world_panel" );
+        var scene = HandlerBase.RequireScene( "configure_world_panel" );
 
         var id = HandlerBase.GetString( args, "id" );
         if ( string.IsNullOrEmpty( id ) )

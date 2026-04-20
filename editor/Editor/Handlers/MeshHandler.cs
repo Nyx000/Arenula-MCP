@@ -123,9 +123,7 @@ internal static class MeshHandler
 
     private static object CreatePlane( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "create_plane" );
+        var scene = HandlerBase.RequireScene( "create_plane" );
 
         var posStr = HandlerBase.GetString( args, "position" );
         var position = posStr != null ? HandlerBase.ParseVector3( posStr ) : Vector3.Zero;
@@ -185,9 +183,7 @@ internal static class MeshHandler
 
     private static object CreateCylinder( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "create_cylinder" );
+        var scene = HandlerBase.RequireScene( "create_cylinder" );
 
         var posStr = HandlerBase.GetString( args, "position" );
         var position = posStr != null ? HandlerBase.ParseVector3( posStr ) : Vector3.Zero;
@@ -735,9 +731,7 @@ internal static class MeshHandler
 
     private static object CreateWedge( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "create_wedge" );
+        var scene = HandlerBase.RequireScene( "create_wedge" );
 
         var posStr = HandlerBase.GetString( args, "position" );
         var position = posStr != null ? HandlerBase.ParseVector3( posStr ) : Vector3.Zero;
@@ -820,9 +814,7 @@ internal static class MeshHandler
 
     private static object CreateArch( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "create_arch" );
+        var scene = HandlerBase.RequireScene( "create_arch" );
 
         var posStr = HandlerBase.GetString( args, "position" );
         var position = posStr != null ? HandlerBase.ParseVector3( posStr ) : Vector3.Zero;
@@ -921,9 +913,7 @@ internal static class MeshHandler
 
     private static object CreateBlock( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "create_block" );
+        var scene = HandlerBase.RequireScene( "create_block" );
 
         var posStr = HandlerBase.GetString( args, "position" );
         var position = posStr != null ? HandlerBase.ParseVector3( posStr ) : Vector3.Zero;
@@ -1008,9 +998,7 @@ internal static class MeshHandler
 
     private static object CreateClutter( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "create_clutter" );
+        var scene = HandlerBase.RequireScene( "create_clutter" );
 
         var posStr = HandlerBase.GetString( args, "position" );
         var position = posStr != null ? HandlerBase.ParseVector3( posStr ) : Vector3.Zero;
@@ -1041,9 +1029,7 @@ internal static class MeshHandler
 
     private static object SetFaceMaterial( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "set_face_material" );
+        var scene = HandlerBase.RequireScene( "set_face_material" );
 
         var id = HandlerBase.GetString( args, "id" );
         if ( string.IsNullOrEmpty( id ) )
@@ -1088,9 +1074,7 @@ internal static class MeshHandler
 
     private static object SetTextureParams( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "set_texture_params" );
+        var scene = HandlerBase.RequireScene( "set_texture_params" );
 
         var id = HandlerBase.GetString( args, "id" );
         if ( string.IsNullOrEmpty( id ) )
@@ -1142,9 +1126,7 @@ internal static class MeshHandler
 
     private static object SetVertexPosition( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "set_vertex_position" );
+        var scene = HandlerBase.RequireScene( "set_vertex_position" );
 
         var id = HandlerBase.GetString( args, "id" );
         if ( string.IsNullOrEmpty( id ) )
@@ -1178,9 +1160,7 @@ internal static class MeshHandler
 
     private static object SetVertexColor( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "set_vertex_color" );
+        var scene = HandlerBase.RequireScene( "set_vertex_color" );
 
         var id = HandlerBase.GetString( args, "id" );
         if ( string.IsNullOrEmpty( id ) )
@@ -1228,9 +1208,7 @@ internal static class MeshHandler
 
     private static object SetVertexBlend( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "set_vertex_blend" );
+        var scene = HandlerBase.RequireScene( "set_vertex_blend" );
 
         var id = HandlerBase.GetString( args, "id" );
         if ( string.IsNullOrEmpty( id ) )
@@ -1269,9 +1247,7 @@ internal static class MeshHandler
 
     private static object GetInfo( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "get_info" );
+        var scene = HandlerBase.RequireScene( "get_info" );
 
         var id = HandlerBase.GetString( args, "id" );
         if ( string.IsNullOrEmpty( id ) )

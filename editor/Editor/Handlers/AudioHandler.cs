@@ -40,9 +40,7 @@ internal static class AudioHandler
 
     private static object Create( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "create" );
+        var scene = HandlerBase.RequireScene( "create" );
 
         var type = HandlerBase.GetString( args, "type", "point" );
         var posStr = HandlerBase.GetString( args, "position" );
@@ -210,9 +208,7 @@ internal static class AudioHandler
 
     private static object Configure( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "configure" );
+        var scene = HandlerBase.RequireScene( "configure" );
 
         var id = HandlerBase.GetString( args, "id" );
         if ( string.IsNullOrEmpty( id ) )

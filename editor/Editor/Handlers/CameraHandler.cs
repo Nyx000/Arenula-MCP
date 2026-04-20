@@ -38,9 +38,7 @@ internal static class CameraHandler
 
     private static object Create( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "create" );
+        var scene = HandlerBase.RequireScene( "create" );
 
         var posStr = HandlerBase.GetString( args, "position" );
         var position = posStr != null ? HandlerBase.ParseVector3( posStr ) : new Vector3( 0, 100, 0 );
@@ -86,9 +84,7 @@ internal static class CameraHandler
 
     private static object CaptureViewport( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "capture_viewport" );
+        var scene = HandlerBase.RequireScene( "capture_viewport" );
 
         var width = HandlerBase.GetInt( args, "width", 1280 );
         var height = HandlerBase.GetInt( args, "height", 720 );
@@ -175,9 +171,7 @@ internal static class CameraHandler
 
     private static object Configure( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "configure" );
+        var scene = HandlerBase.RequireScene( "configure" );
 
         var id = HandlerBase.GetString( args, "id" );
         if ( string.IsNullOrEmpty( id ) )
@@ -206,9 +200,7 @@ internal static class CameraHandler
 
     private static object CaptureTour( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "capture_tour" );
+        var scene = HandlerBase.RequireScene( "capture_tour" );
 
         if ( !args.TryGetProperty( "shots", out var shotsEl ) || shotsEl.ValueKind != JsonValueKind.Array )
             return HandlerBase.Error( "Parameter 'shots' is required — array of {position, look_at, label?}.", "capture_tour" );
@@ -276,9 +268,7 @@ internal static class CameraHandler
 
     private static object OrbitCapture( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "orbit_capture" );
+        var scene = HandlerBase.RequireScene( "orbit_capture" );
 
         var targetStr = HandlerBase.GetString( args, "target" );
         if ( string.IsNullOrEmpty( targetStr ) )

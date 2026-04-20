@@ -41,9 +41,7 @@ internal static class SceneHandler
 
     private static object Summary()
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene. Open a scene or prefab in the editor.", "summary" );
+        var scene = HandlerBase.RequireScene( "summary" );
 
         var allObjects = SceneHelpers.WalkAll( scene, includeDisabled: true ).ToList();
         var rootObjects = scene.Children.ToList();
@@ -96,9 +94,7 @@ internal static class SceneHandler
 
     private static object Hierarchy( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene. Open a scene or prefab in the editor.", "hierarchy" );
+        var scene = HandlerBase.RequireScene( "hierarchy" );
 
         int maxDepth = HandlerBase.GetInt( args, "max_depth", -1 );
         var sb = new StringBuilder();
@@ -127,9 +123,7 @@ internal static class SceneHandler
 
     private static object Statistics()
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "statistics" );
+        var scene = HandlerBase.RequireScene( "statistics" );
 
         var allObjects = SceneHelpers.WalkAll( scene, includeDisabled: true ).ToList();
 
@@ -191,9 +185,7 @@ internal static class SceneHandler
 
     private static object Find( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "find" );
+        var scene = HandlerBase.RequireScene( "find" );
 
         var query = HandlerBase.GetString( args, "query" );
         var tag = HandlerBase.GetString( args, "tag" );
@@ -234,9 +226,7 @@ internal static class SceneHandler
 
     private static object FindInRadius( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "find_in_radius" );
+        var scene = HandlerBase.RequireScene( "find_in_radius" );
 
         var posStr = HandlerBase.GetString( args, "position" );
         if ( string.IsNullOrEmpty( posStr ) )
@@ -284,9 +274,7 @@ internal static class SceneHandler
 
     private static object GetDetails( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "get_details" );
+        var scene = HandlerBase.RequireScene( "get_details" );
 
         var id = HandlerBase.GetString( args, "id" );
         if ( string.IsNullOrEmpty( id ) )
@@ -305,9 +293,7 @@ internal static class SceneHandler
 
     private static object PrefabInstances( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "prefab_instances" );
+        var scene = HandlerBase.RequireScene( "prefab_instances" );
 
         var prefabPath = HandlerBase.GetString( args, "prefab_path" );
         int offset = HandlerBase.GetInt( args, "offset", 0 );

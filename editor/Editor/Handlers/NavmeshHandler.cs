@@ -43,9 +43,7 @@ internal static class NavmeshHandler
 
     private static object CreateAgent( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "create_agent" );
+        var scene = HandlerBase.RequireScene( "create_agent" );
 
         // Can add to existing GO (via id) or create a new one
         var id = HandlerBase.GetString( args, "id" );
@@ -86,9 +84,7 @@ internal static class NavmeshHandler
 
     private static object CreateArea( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "create_area" );
+        var scene = HandlerBase.RequireScene( "create_area" );
 
         var posStr = HandlerBase.GetString( args, "position" );
         var position = posStr != null ? HandlerBase.ParseVector3( posStr ) : Vector3.Zero;
@@ -119,9 +115,7 @@ internal static class NavmeshHandler
 
     private static object CreateLink( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "create_link" );
+        var scene = HandlerBase.RequireScene( "create_link" );
 
         var startStr = HandlerBase.GetString( args, "start_position" );
         var endStr = HandlerBase.GetString( args, "end_position" );
@@ -161,9 +155,7 @@ internal static class NavmeshHandler
 
     private static object Generate( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "generate" );
+        var scene = HandlerBase.RequireScene( "generate" );
 
         try
         {
@@ -189,9 +181,7 @@ internal static class NavmeshHandler
 
     private static object GetStatus( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "get_status" );
+        var scene = HandlerBase.RequireScene( "get_status" );
 
         var agents = SceneHelpers.WalkAll( scene )
             .SelectMany( go => go.Components.GetAll().OfType<NavMeshAgent>() )
@@ -230,9 +220,7 @@ internal static class NavmeshHandler
 
     private static object GenerateTile( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "generate_tile" );
+        var scene = HandlerBase.RequireScene( "generate_tile" );
 
         var navMesh = scene.NavMesh;
         if ( navMesh == null )
@@ -264,9 +252,7 @@ internal static class NavmeshHandler
 
     private static object UnloadTile( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "unload_tile" );
+        var scene = HandlerBase.RequireScene( "unload_tile" );
 
         var navMesh = scene.NavMesh;
         if ( navMesh == null )
@@ -298,9 +284,7 @@ internal static class NavmeshHandler
 
     private static object SetDeferGeneration( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "set_defer_generation" );
+        var scene = HandlerBase.RequireScene( "set_defer_generation" );
 
         var navMesh = scene.NavMesh;
         if ( navMesh == null )
@@ -318,9 +302,7 @@ internal static class NavmeshHandler
 
     private static object QueryPath( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "query_path" );
+        var scene = HandlerBase.RequireScene( "query_path" );
 
         var fromStr = HandlerBase.GetString( args, "from" );
         var toStr = HandlerBase.GetString( args, "to" );

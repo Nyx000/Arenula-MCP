@@ -36,9 +36,7 @@ internal static class NetworkingHandler
 
     private static object AddHelper( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "add_helper" );
+        var scene = HandlerBase.RequireScene( "add_helper" );
 
         var warnings = new List<object>();
 
@@ -107,9 +105,7 @@ internal static class NetworkingHandler
 
     private static object ConfigureObject( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "configure_object" );
+        var scene = HandlerBase.RequireScene( "configure_object" );
 
         var id = HandlerBase.GetString( args, "id" );
         if ( string.IsNullOrEmpty( id ) )
@@ -156,9 +152,7 @@ internal static class NetworkingHandler
 
     private static object GetStatus( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "get_status" );
+        var scene = HandlerBase.RequireScene( "get_status" );
 
         var id = HandlerBase.GetString( args, "id" );
 

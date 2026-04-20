@@ -102,9 +102,7 @@ internal static class ComponentHandler
 
     private static object Add( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "add" );
+        var scene = HandlerBase.RequireScene( "add" );
 
         var id = HandlerBase.GetString( args, "id" );
         if ( string.IsNullOrEmpty( id ) )
@@ -163,9 +161,7 @@ internal static class ComponentHandler
 
     private static object Remove( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "remove" );
+        var scene = HandlerBase.RequireScene( "remove" );
 
         var id = HandlerBase.GetString( args, "id" );
         if ( string.IsNullOrEmpty( id ) )
@@ -203,9 +199,7 @@ internal static class ComponentHandler
 
     private static object SetProperty( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "set_property" );
+        var scene = HandlerBase.RequireScene( "set_property" );
 
         var id = HandlerBase.GetString( args, "id" );
         if ( string.IsNullOrEmpty( id ) )
@@ -404,9 +398,7 @@ internal static class ComponentHandler
 
     private static object SetEnabled( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "set_enabled" );
+        var scene = HandlerBase.RequireScene( "set_enabled" );
 
         var id = HandlerBase.GetString( args, "id" );
         if ( string.IsNullOrEmpty( id ) )
@@ -439,9 +431,7 @@ internal static class ComponentHandler
 
     private static object GetProperties( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "get_properties" );
+        var scene = HandlerBase.RequireScene( "get_properties" );
 
         var id = HandlerBase.GetString( args, "id" );
         if ( string.IsNullOrEmpty( id ) )
@@ -543,9 +533,7 @@ internal static class ComponentHandler
 
     private static object Copy( JsonElement args )
     {
-        var scene = SceneHelpers.ResolveScene();
-        if ( scene == null )
-            return HandlerBase.Error( "No active scene.", "copy" );
+        var scene = HandlerBase.RequireScene( "copy" );
 
         var sourceComponentId = HandlerBase.GetString( args, "source_component_id" );
         if ( string.IsNullOrEmpty( sourceComponentId ) )
