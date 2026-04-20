@@ -10,7 +10,6 @@ namespace Arenula;
 /// <summary>
 /// asset_manage tool: create, delete, rename, move, save, reload, get_references.
 /// All actions are destructive (modify files on disk).
-/// Ported from Ozmium OzmiumAssetHandlers.ReloadAsset.
 /// New actions: create, delete, rename, move, save.
 /// get_references delegates to AssetQueryHandler.GetReferences.
 /// </summary>
@@ -307,7 +306,6 @@ internal static class AssetManageHandler
     }
 
     // ── reload ────────────────────────────────────────────────────────────
-    // Ported from OzmiumAssetHandlers.ReloadAsset
 
     private static object Reload( JsonElement args )
     {

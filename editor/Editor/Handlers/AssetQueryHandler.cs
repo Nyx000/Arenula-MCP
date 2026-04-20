@@ -13,7 +13,6 @@ namespace Arenula;
 /// get_material_properties, get_mesh_info, get_bounds, get_unsaved,
 /// get_status, get_json, get_references.
 /// All actions are read-only.
-/// Ported from Ozmium OzmiumAssetHandlers, UtilityToolHandlers, OzmiumEditorHandlers.
 /// New actions: get_status, get_json, get_references.
 /// </summary>
 internal static class AssetQueryHandler
@@ -47,7 +46,6 @@ internal static class AssetQueryHandler
     }
 
     // ── browse ────────────────────────────────────────────────────────────
-    // Ported from OzmiumAssetHandlers.BrowseAssets
 
     private static object Browse( JsonElement args )
     {
@@ -81,7 +79,6 @@ internal static class AssetQueryHandler
     }
 
     // ── search ────────────────────────────────────────────────────────────
-    // Ported from OzmiumAssetHandlers.SearchAssets
 
     private static object Search( JsonElement args )
     {
@@ -138,7 +135,6 @@ internal static class AssetQueryHandler
     }
 
     // ── open ──────────────────────────────────────────────────────────────
-    // Ported from OzmiumEditorHandlers.OpenAsset
 
     private static object Open( JsonElement args )
     {
@@ -155,7 +151,6 @@ internal static class AssetQueryHandler
     }
 
     // ── get_dependencies ──────────────────────────────────────────────────
-    // Ported from UtilityToolHandlers.GetAssetDependencies
 
     private static object GetDependencies( JsonElement args )
     {
@@ -197,7 +192,6 @@ internal static class AssetQueryHandler
     }
 
     // ── get_model_info ────────────────────────────────────────────────────
-    // Ported from OzmiumAssetHandlers.GetModelInfo
 
     private static object GetModelInfo( JsonElement args )
     {
@@ -234,7 +228,6 @@ internal static class AssetQueryHandler
     }
 
     // ── get_material_properties ───────────────────────────────────────────
-    // Ported from OzmiumAssetHandlers.GetMaterialProperties
 
     private static object GetMaterialProperties( JsonElement args )
     {
@@ -355,7 +348,6 @@ internal static class AssetQueryHandler
     }
 
     // ── get_bounds ────────────────────────────────────────────────────────
-    // Ported from UtilityToolHandlers.GetObjectBounds
 
     private static object GetBounds( JsonElement args )
     {
@@ -381,7 +373,6 @@ internal static class AssetQueryHandler
     }
 
     // ── get_unsaved ───────────────────────────────────────────────────────
-    // Ported from OzmiumEditorHandlers.GetSceneUnsaved (extended to all sessions)
 
     private static object GetUnsaved()
     {

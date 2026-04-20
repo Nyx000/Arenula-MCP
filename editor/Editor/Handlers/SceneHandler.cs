@@ -11,7 +11,6 @@ namespace Arenula;
 /// <summary>
 /// scene tool: summary, hierarchy, statistics, find, find_in_radius, get_details, prefab_instances.
 /// All actions are read-only.
-/// Ported from Ozmium SceneToolHandlers + OzmiumAssetHandlers.GetSceneStatistics.
 /// </summary>
 internal static class SceneHandler
 {

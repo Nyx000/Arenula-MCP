@@ -11,7 +11,6 @@ namespace Arenula;
 
 /// <summary>
 /// project tool: get_collision, set_collision_rule, get_input, get_info.
-/// Ported from ProjectSettingsHandlers.cs (199 lines).
 /// </summary>
 internal static class ProjectHandler
 {
@@ -43,7 +42,6 @@ internal static class ProjectHandler
     }
 
     // ── get_collision ─────────────────────────────────────────────────
-    // Ported from ProjectSettingsHandlers.GetCollisionConfig
 
     private static object GetCollision()
     {
@@ -55,7 +53,6 @@ internal static class ProjectHandler
     }
 
     // ── set_collision_rule ────────────────────────────────────────────
-    // Ported from ProjectSettingsHandlers.SetCollisionRule
 
     private static object SetCollisionRule( JsonElement args )
     {
@@ -117,7 +114,6 @@ internal static class ProjectHandler
     }
 
     // ── get_input ─────────────────────────────────────────────────────
-    // Ported from ProjectSettingsHandlers.GetInputConfig
 
     private static object GetInput()
     {
@@ -129,7 +125,6 @@ internal static class ProjectHandler
     }
 
     // ── get_info ──────────────────────────────────────────────────────
-    // Ported from ProjectSettingsHandlers.GetProjectInfo
 
     private static object GetInfo()
     {

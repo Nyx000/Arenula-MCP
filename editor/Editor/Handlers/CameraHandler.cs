@@ -10,7 +10,6 @@ namespace Arenula;
 
 /// <summary>
 /// camera tool: create, configure, capture_viewport, capture_tour, orbit_capture.
-/// Ported from CameraToolHandlers.cs, extended with capture actions.
 /// </summary>
 internal static class CameraHandler
 {
@@ -36,7 +35,6 @@ internal static class CameraHandler
     }
 
     // ── create ────────────────────────────────────────────────────────
-    // Ported from CameraToolHandlers.CreateCamera
 
     private static object Create( JsonElement args )
     {
@@ -183,7 +181,6 @@ internal static class CameraHandler
     }
 
     // ── configure ─────────────────────────────────────────────────────
-    // Ported from CameraToolHandlers.ConfigureCamera
 
     private static object Configure( JsonElement args )
     {

@@ -11,7 +11,6 @@ namespace Arenula;
 /// <summary>
 /// prefab tool: instantiate, get_structure, get_instances, break, update,
 /// create, save_overrides, revert, get_overrides.
-/// Ported from Ozmium OzmiumWriteHandlers.InstantiatePrefab, OzmiumAssetHandlers.GetPrefabStructure,
 /// SceneToolHandlers.GetPrefabInstances, OzmiumEditorHandlers.BreakFromPrefab/UpdateFromPrefab.
 /// New actions: create, save_overrides, revert, get_overrides.
 /// </summary>
@@ -43,7 +42,6 @@ internal static class PrefabHandler
     }
 
     // ── instantiate ─────────────────────────────────────────────────────
-    // Ported from OzmiumWriteHandlers.InstantiatePrefab
 
     private static object Instantiate( JsonElement args )
     {
@@ -100,7 +98,6 @@ internal static class PrefabHandler
     }
 
     // ── get_structure ────────────────────────────────────────────────────
-    // Ported from OzmiumAssetHandlers.GetPrefabStructure
 
     private static object GetStructure( JsonElement args )
     {
@@ -125,7 +122,6 @@ internal static class PrefabHandler
     }
 
     // ── get_instances ────────────────────────────────────────────────────
-    // Ported from SceneToolHandlers.GetPrefabInstances
 
     private static object GetInstances( JsonElement args )
     {
@@ -173,7 +169,6 @@ internal static class PrefabHandler
     }
 
     // ── break ────────────────────────────────────────────────────────────
-    // Ported from OzmiumEditorHandlers.BreakFromPrefab
 
     private static object Break( JsonElement args )
     {
@@ -190,7 +185,6 @@ internal static class PrefabHandler
     }
 
     // ── update ────────────────────────────────────────────────────────────
-    // Ported from OzmiumEditorHandlers.UpdateFromPrefab
 
     private static object Update( JsonElement args )
     {

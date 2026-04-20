@@ -918,7 +918,6 @@ internal static class MeshHandler
     }
 
     // ── create_block ──────────────────────────────────────────────────
-    // Ported from MeshEditHandlers.CreateBlock
 
     private static object CreateBlock( JsonElement args )
     {
@@ -1041,7 +1040,6 @@ internal static class MeshHandler
     }
 
     // ── set_face_material ─────────────────────────────────────────────
-    // Ported from MeshEditHandlers.SetFaceMaterial
 
     private static object SetFaceMaterial( JsonElement args )
     {
@@ -1089,7 +1087,6 @@ internal static class MeshHandler
     }
 
     // ── set_texture_params ────────────────────────────────────────────
-    // Ported from MeshEditHandlers.SetTextureParameters
 
     private static object SetTextureParams( JsonElement args )
     {
@@ -1144,7 +1141,6 @@ internal static class MeshHandler
     }
 
     // ── set_vertex_position ───────────────────────────────────────────
-    // Ported from MeshEditHandlers.SetVertexPosition
 
     private static object SetVertexPosition( JsonElement args )
     {
@@ -1181,7 +1177,6 @@ internal static class MeshHandler
     }
 
     // ── set_vertex_color ──────────────────────────────────────────────
-    // Ported from MeshEditHandlers.SetVertexColor
 
     private static object SetVertexColor( JsonElement args )
     {
@@ -1232,7 +1227,6 @@ internal static class MeshHandler
     }
 
     // ── set_vertex_blend ──────────────────────────────────────────────
-    // Ported from MeshEditHandlers.SetVertexBlend
 
     private static object SetVertexBlend( JsonElement args )
     {
@@ -1274,7 +1268,6 @@ internal static class MeshHandler
     }
 
     // ── get_info ──────────────────────────────────────────────────────
-    // Ported from MeshEditHandlers.GetMeshInfo
 
     private static object GetInfo( JsonElement args )
     {

@@ -9,7 +9,6 @@ namespace Arenula;
 
 /// <summary>
 /// component tool: add, remove, set_property, set_enabled, get_properties, get_types, copy.
-/// Ported from Ozmium OzmiumWriteHandlers, OzmiumAssetHandlers, UtilityToolHandlers.
 /// </summary>
 internal static class ComponentHandler
 {
@@ -71,7 +70,6 @@ internal static class ComponentHandler
     /// <summary>
     /// Fast component type lookup using TypeLibrary (indexed).
     /// Prefers game-assembly types over Sandbox built-ins when names collide.
-    /// Ported from OzmiumWriteHandlers.FindComponentTypeDescription.
     /// </summary>
     private static TypeDescription FindComponentTypeDescription( string typeName )
     {
@@ -285,7 +283,6 @@ internal static class ComponentHandler
     /// <summary>
     /// Convert a JSON value to the target CLR type.
     /// Supports: string, bool, int, float, double, Vector3, Enum, Model, Component, GameObject.
-    /// Ported from OzmiumWriteHandlers.ConvertJsonValue.
     /// </summary>
     private static object ConvertJsonValue( JsonElement el, Type targetType )
     {

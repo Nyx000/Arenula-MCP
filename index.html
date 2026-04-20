@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Arenula — MCP Server Suite for s&amp;box</title>
-    <meta name="description" content="Connect AI coding assistants to the s&amp;box game engine. 19 tools, ~156 actions, 3 servers. Scene manipulation, API reference, documentation — all over MCP.">
+    <meta name="description" content="Connect AI coding assistants to the s&amp;box game engine. 22 tools, 178 actions, 3 servers. Scene manipulation, API reference, documentation — all over MCP.">
     <meta property="og:title" content="Arenula — MCP Server Suite for s&amp;box">
-    <meta property="og:description" content="Connect AI coding assistants to the s&amp;box game engine. 19 tools, ~156 actions, 3 servers.">
+    <meta property="og:description" content="Connect AI coding assistants to the s&amp;box game engine. 22 tools, 178 actions, 3 servers.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://nyx000.github.io/arenula-mcp/">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="Arenula — MCP Server Suite for s&amp;box">
-    <meta name="twitter:description" content="Connect AI coding assistants to the s&amp;box game engine. 19 tools, ~156 actions, 3 servers.">
+    <meta name="twitter:description" content="Connect AI coding assistants to the s&amp;box game engine. 22 tools, 178 actions, 3 servers.">
     <style>
         :root {
             --bg: #0c0c14;
@@ -637,8 +637,8 @@
             <a href="https://github.com/Nyx000/Arenula-MCP" class="btn-secondary" target="_blank">View Source</a>
         </div>
         <div class="hero-stats">
-            <div class="hero-stat"><div class="n">19</div><div class="l">Tools</div></div>
-            <div class="hero-stat"><div class="n">~156</div><div class="l">Actions</div></div>
+            <div class="hero-stat"><div class="n">22</div><div class="l">Tools</div></div>
+            <div class="hero-stat"><div class="n">178</div><div class="l">Actions</div></div>
             <div class="hero-stat"><div class="n">3</div><div class="l">Servers</div></div>
             <div class="hero-stat"><div class="n">8-13K</div><div class="l">Tokens</div></div>
         </div>
@@ -655,7 +655,7 @@
             <div class="srv">
                 <h3>Editor</h3>
                 <p>Scene manipulation, code compilation, asset management, terrain editing. Runs inside the s&box editor as a C# library plugin.</p>
-                <div class="srv-meta"><span>19 tools</span><span>SSE :8098</span><span>C#</span></div>
+                <div class="srv-meta"><span>22 tools</span><span>SSE :8098</span><span>C#</span></div>
             </div>
             <div class="srv">
                 <h3>API</h3>
@@ -676,7 +676,7 @@
 <div class="section">
     <div class="wrap">
         <h2 id="tools">Editor Tools</h2>
-        <p>19 omnibus tools, ~156 actions. Each takes a required <code>action</code> parameter to select the operation.</p>
+        <p>22 omnibus tools, 178 actions. Each takes a required <code>action</code> parameter to select the operation.</p>
         <div class="tools">
             <div class="t"><div class="t-name">scene</div><div class="t-acts"><code>summary</code> <code>hierarchy</code> <code>statistics</code> <code>find</code> <code>find_in_radius</code> <code>get_details</code> <code>prefab_instances</code></div><div class="t-n">7</div></div>
             <div class="t"><div class="t-name">gameobject</div><div class="t-acts"><code>create</code> <code>destroy</code> <code>duplicate</code> <code>reparent</code> <code>rename</code> <code>enable</code> <code>set_tags</code> <code>set_transform</code> <code>batch_transform</code></div><div class="t-n">9</div></div>
@@ -749,7 +749,7 @@
         <div class="arch-details">
             <div class="arch-detail-card">
                 <h4>Core <span class="count">8 files</span></h4>
-                <p><code>ArenulaMcpServer</code> HTTP/SSE listener and session management. <code>RpcDispatcher</code> extracts tool name + action, routes to the correct handler. <code>ToolRegistry</code> holds all 19 tool schemas. <code>HandlerBase</code> provides response formatting, pagination, and error helpers. <code>SceneHelpers</code> handles scene resolution and tree walking.</p>
+                <p><code>ArenulaMcpServer</code> HTTP/SSE listener and session management. <code>RpcDispatcher</code> extracts tool name + action, routes to the correct handler. <code>ToolRegistry</code> holds all 22 tool schemas. <code>HandlerBase</code> provides response formatting, pagination, and error helpers. <code>SceneHelpers</code> handles scene resolution and tree walking.</p>
             </div>
             <div class="arch-detail-card">
                 <h4>Handlers <span class="count">20 files</span></h4>

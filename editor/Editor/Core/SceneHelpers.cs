@@ -10,7 +10,6 @@ namespace Arenula;
 
 /// <summary>
 /// Scene resolution, tree walking, object lookup, and component helpers.
-/// Ported from Ozmium OzmiumSceneHelpers + SceneQueryHelpers.
 /// </summary>
 internal static class SceneHelpers
 {

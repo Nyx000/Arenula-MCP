@@ -97,7 +97,7 @@ Tools appear as `mcp__editor__*`, `mcp__api__*`, `mcp__docs__*` in your AI clien
 
 ## Editor Tools
 
-19 omnibus tools, ~156 actions. Each tool takes a required `action` parameter.
+22 omnibus tools, 178 actions. Each tool takes a required `action` parameter.
 
 | Tool | Actions | Count |
 |------|---------|-------|

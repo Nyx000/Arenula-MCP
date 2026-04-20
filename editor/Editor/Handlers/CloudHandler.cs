@@ -13,7 +13,6 @@ namespace Arenula;
 
 /// <summary>
 /// cloud tool (async): search, get_package, mount.
-/// Ported from CloudAssetHandlers.cs (213 lines).
 /// Uses HandleAsync pattern — dispatched BEFORE GameTask.MainThread().
 /// </summary>
 internal static class CloudHandler
@@ -39,7 +38,6 @@ internal static class CloudHandler
     }
 
     // ── search ────────────────────────────────────────────────────────
-    // Ported from CloudAssetHandlers.SearchCloudAssets
 
     private static async Task<object> Search( JsonElement args )
     {
@@ -79,7 +77,6 @@ internal static class CloudHandler
     }
 
     // ── get_package ───────────────────────────────────────────────────
-    // Ported from CloudAssetHandlers.GetCloudPackage
 
     private static async Task<object> GetPackage( JsonElement args )
     {
@@ -138,7 +135,6 @@ internal static class CloudHandler
     }
 
     // ── mount ─────────────────────────────────────────────────────────
-    // Ported from CloudAssetHandlers.MountCloudAsset
 
     private static async Task<object> Mount( JsonElement args )
     {

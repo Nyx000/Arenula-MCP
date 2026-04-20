@@ -14,7 +14,6 @@ namespace Arenula;
 /// save_scene_as, undo, redo.
 /// Console actions (console_list, console_run) are handled by ConsoleHandler.
 /// New actions: open_code_file, get_preferences, set_preference.
-/// Ported from Ozmium OzmiumEditorHandlers + OzmiumWriteHandlers.
 /// </summary>
 internal static class EditorHandler
 {
@@ -64,7 +63,6 @@ internal static class EditorHandler
     }
 
     // ── select ───────────────────────────────────────────────────────────
-    // Ported from OzmiumEditorHandlers.SelectGameObject
 
     private static object Select( JsonElement args )
     {
@@ -81,7 +79,6 @@ internal static class EditorHandler
     }
 
     // ── get_selected ─────────────────────────────────────────────────────
-    // Ported from OzmiumEditorHandlers.GetSelectedObjects
 
     private static object GetSelected()
     {
@@ -103,7 +100,6 @@ internal static class EditorHandler
     }
 
     // ── set_selected ─────────────────────────────────────────────────────
-    // Ported from OzmiumEditorHandlers.SetSelectedObjects
 
     private static object SetSelected( JsonElement args )
     {
@@ -133,7 +129,6 @@ internal static class EditorHandler
     }
 
     // ── clear_selection ──────────────────────────────────────────────────
-    // Ported from OzmiumEditorHandlers.ClearSelection
 
     private static object ClearSelection()
     {
@@ -142,7 +137,6 @@ internal static class EditorHandler
     }
 
     // ── frame_selection ──────────────────────────────────────────────────
-    // Ported from OzmiumEditorHandlers.FrameSelection
 
     private static object FrameSelection( JsonElement args )
     {
@@ -183,7 +177,6 @@ internal static class EditorHandler
     }
 
     // ── get_play_state ───────────────────────────────────────────────────
-    // Ported from OzmiumEditorHandlers.GetPlayState
 
     private static object GetPlayState()
     {
@@ -193,7 +186,6 @@ internal static class EditorHandler
     }
 
     // ── start_play ───────────────────────────────────────────────────────
-    // Ported from OzmiumEditorHandlers.StartPlayMode
 
     private static object StartPlay()
     {
@@ -205,7 +197,6 @@ internal static class EditorHandler
     }
 
     // ── stop_play ────────────────────────────────────────────────────────
-    // Ported from OzmiumEditorHandlers.StopPlayMode
 
     private static object StopPlay()
     {
@@ -217,7 +208,6 @@ internal static class EditorHandler
     }
 
     // ── get_log ──────────────────────────────────────────────────────────
-    // Ported from OzmiumEditorHandlers.GetEditorLog
 
     private static object GetLog( JsonElement args )
     {
@@ -244,7 +234,6 @@ internal static class EditorHandler
     }
 
     // ── save_scene ───────────────────────────────────────────────────────
-    // Ported from OzmiumWriteHandlers.SaveScene
 
     private static object SaveScene()
     {
@@ -284,7 +273,6 @@ internal static class EditorHandler
     }
 
     // ── save_scene_as ────────────────────────────────────────────────────
-    // Ported from OzmiumEditorHandlers.SaveSceneAs
 
     private static object SaveSceneAs( JsonElement args )
     {
@@ -332,7 +320,6 @@ internal static class EditorHandler
     }
 
     // ── undo ─────────────────────────────────────────────────────────────
-    // Ported from OzmiumWriteHandlers.Undo
 
     private static object Undo()
     {
@@ -345,7 +332,6 @@ internal static class EditorHandler
     }
 
     // ── redo ─────────────────────────────────────────────────────────────
-    // Ported from OzmiumWriteHandlers.Redo
 
     private static object Redo()
     {

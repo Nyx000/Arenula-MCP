@@ -35,9 +35,9 @@ Open s&box — the plugin compiles automatically and starts the MCP server on `h
 | `SceneHelpers.cs` | Shared scene query utilities |
 | `MaterialHelper.cs` | Material property helpers |
 
-## Tools (19)
+## Tools (22)
 
-Each tool uses an `action` enum parameter. 19 tools, ~156 total actions.
+Each tool uses an `action` enum parameter. 22 tools, 178 total actions.
 
 | Tool | Actions |
 |------|---------|

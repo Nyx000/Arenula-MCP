@@ -9,7 +9,6 @@ namespace Arenula;
 
 /// <summary>
 /// gameobject tool: create, destroy, duplicate, reparent, rename, enable, set_tags, set_transform, batch_transform.
-/// Ported from Ozmium OzmiumWriteHandlers + UtilityToolHandlers.BatchTransform.
 /// </summary>
 internal static class GameObjectHandler
 {

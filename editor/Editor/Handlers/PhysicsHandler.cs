@@ -13,7 +13,6 @@ namespace Arenula;
 /// Consolidates Ozmium AddCollider + AddPlaneCollider + AddHullCollider
 /// into a single 'add_collider' action with type param.
 /// CreateJoint moved here from EffectToolHandlers.
-/// Ported from PhysicsToolHandlers.cs (483 lines) + EffectToolHandlers.CreateJoint.
 /// </summary>
 internal static class PhysicsHandler
 {
@@ -204,7 +203,6 @@ internal static class PhysicsHandler
     }
 
     // ── configure_collider ────────────────────────────────────────────
-    // Ported from PhysicsToolHandlers.ConfigureCollider
 
     private static object ConfigureCollider( JsonElement args )
     {
@@ -270,7 +268,6 @@ internal static class PhysicsHandler
     }
 
     // ── add_rigidbody ─────────────────────────────────────────────────
-    // Ported from PhysicsToolHandlers.AddRigidbody
 
     private static object AddRigidbody( JsonElement args )
     {
@@ -309,7 +306,6 @@ internal static class PhysicsHandler
     }
 
     // ── create_model_physics ──────────────────────────────────────────
-    // Ported from PhysicsToolHandlers.CreateModelPhysics
 
     private static object CreateModelPhysics( JsonElement args )
     {
@@ -351,7 +347,6 @@ internal static class PhysicsHandler
     }
 
     // ── create_character_controller ───────────────────────────────────
-    // Ported from PhysicsToolHandlers.CreateCharacterController
 
     private static object CreateCharacterController( JsonElement args )
     {

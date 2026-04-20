@@ -11,7 +11,6 @@ namespace Arenula;
 /// Console actions for the editor tool: console_list, console_run.
 /// Dispatched BEFORE GameTask.MainThread() in RpcDispatcher for exception isolation.
 /// Exposed via the 'editor' tool schema but handled in a separate file.
-/// Ported from Ozmium ConsoleToolHandlers + OzmiumEditorHandlers.
 /// </summary>
 internal static class ConsoleHandler
 {
@@ -34,7 +33,6 @@ internal static class ConsoleHandler
     }
 
     // ── console_list ─────────────────────────────────────────────────────
-    // Ported from ConsoleToolHandlers.ListConsoleCommands + OzmiumEditorHandlers.ListConsoleCommands
 
     private static object ConsoleList( JsonElement args )
     {
@@ -105,7 +103,6 @@ internal static class ConsoleHandler
     }
 
     // ── console_run ──────────────────────────────────────────────────────
-    // Ported from ConsoleToolHandlers.RunConsoleCommand + OzmiumEditorHandlers.RunConsoleCommand
 
     private static object ConsoleRun( JsonElement args )
     {

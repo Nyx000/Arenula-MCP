@@ -6,7 +6,6 @@ namespace Arenula;
 /// <summary>
 /// Helper utilities for material loading and application operations on PolygonMesh.
 /// Provides centralized methods for material handling in mesh editing tools.
-/// Ported from Ozmium MaterialHelper.cs (202 lines).
 /// </summary>
 internal static class MaterialHelper
 {

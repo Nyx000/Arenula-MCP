@@ -12,7 +12,6 @@ namespace Arenula;
 /// effects tool: create, configure_particle, configure_post_processing.
 /// Consolidates Ozmium CreateParticleEffect, CreateFogVolume, CreateBeamEffect,
 /// CreateVerletRope, CreateRadiusDamage, CreateRenderEntity into 'create' with type param.
-/// Ported from EffectToolHandlers.cs (641 lines, minus CreateJoint moved to physics).
 /// </summary>
 internal static class EffectsHandler
 {
@@ -308,7 +307,6 @@ internal static class EffectsHandler
     }
 
     // ── configure_particle ────────────────────────────────────────────
-    // Ported from EffectToolHandlers.ConfigureParticleEffect
 
     private static object ConfigureParticle( JsonElement args )
     {
@@ -338,7 +336,6 @@ internal static class EffectsHandler
     }
 
     // ── configure_post_processing ─────────────────────────────────────
-    // Ported from EffectToolHandlers.ConfigurePostProcessing
 
     private static object ConfigurePostProcessing( JsonElement args )
     {

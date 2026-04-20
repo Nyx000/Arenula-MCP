@@ -13,7 +13,6 @@ namespace Arenula;
 /// audio tool: create, configure.
 /// Consolidates 5 Ozmium create tools into 1 create action with type param.
 /// Types: point, soundscape, box, dsp_volume, listener.
-/// Ported from AudioToolHandlers.cs (425 lines).
 /// </summary>
 internal static class AudioHandler
 {
@@ -223,7 +222,6 @@ internal static class AudioHandler
     }
 
     // ── configure ─────────────────────────────────────────────────────
-    // Ported from AudioToolHandlers.ConfigureSound
 
     private static object Configure( JsonElement args )
     {

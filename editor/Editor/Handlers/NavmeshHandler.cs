@@ -10,7 +10,6 @@ namespace Arenula;
 
 /// <summary>
 /// navmesh tool: create_agent, create_area, create_link, generate, get_status, query_path.
-/// Ported from NavigationToolHandlers.cs (200 lines).
 /// NEW actions: generate, get_status, query_path — research required.
 /// </summary>
 internal static class NavmeshHandler
@@ -41,7 +40,6 @@ internal static class NavmeshHandler
     }
 
     // ── create_agent ──────────────────────────────────────────────────
-    // Ported from NavigationToolHandlers.CreateNavMeshAgent
 
     private static object CreateAgent( JsonElement args )
     {
@@ -93,7 +91,6 @@ internal static class NavmeshHandler
     }
 
     // ── create_area ───────────────────────────────────────────────────
-    // Ported from NavigationToolHandlers.CreateNavMeshArea
 
     private static object CreateArea( JsonElement args )
     {
@@ -129,7 +126,6 @@ internal static class NavmeshHandler
     }
 
     // ── create_link ───────────────────────────────────────────────────
-    // Ported from NavigationToolHandlers.CreateNavMeshLink
 
     private static object CreateLink( JsonElement args )
     {

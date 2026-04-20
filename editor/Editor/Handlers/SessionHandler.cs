@@ -10,7 +10,6 @@ namespace Arenula;
 /// <summary>
 /// session tool: list, set_active, load_scene.
 /// Manages editor sessions (scene/prefab tabs).
-/// Ported from Ozmium SessionToolHandlers.
 /// </summary>
 internal static class SessionHandler
 {
@@ -34,7 +33,6 @@ internal static class SessionHandler
     }
 
     // ── list ──────────────────────────────────────────────────────────────
-    // Ported from SessionToolHandlers.GetEditorSessions
 
     private static object List()
     {
@@ -63,7 +61,6 @@ internal static class SessionHandler
     }
 
     // ── set_active ────────────────────────────────────────────────────────
-    // Ported from SessionToolHandlers.SetActiveSession
 
     private static object SetActive( JsonElement args )
     {
@@ -104,7 +101,6 @@ internal static class SessionHandler
     }
 
     // ── load_scene ────────────────────────────────────────────────────────
-    // Ported from SessionToolHandlers.LoadScene
 
     private static object LoadScene( JsonElement args )
     {

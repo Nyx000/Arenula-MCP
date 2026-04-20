@@ -12,7 +12,6 @@ namespace Arenula;
 /// lighting tool: create, configure, create_skybox, set_skybox.
 /// Consolidates Ozmium CreateLight + CreateAmbientLight + CreateIndirectLightVolume
 /// into a single 'create' action with type param.
-/// Ported from LightingToolHandlers.cs (480 lines).
 /// </summary>
 internal static class LightingHandler
 {
@@ -276,7 +275,6 @@ internal static class LightingHandler
     }
 
     // ── configure ─────────────────────────────────────────────────────────
-    // Ported from LightingToolHandlers.ConfigureLight
 
     private static object Configure( JsonElement args )
     {
@@ -368,7 +366,6 @@ internal static class LightingHandler
     }
 
     // ── create_skybox ──────────────────────────────────────────────────────
-    // Ported from LightingToolHandlers.CreateSkyBox
 
     private static object CreateSkybox( JsonElement args )
     {
@@ -411,7 +408,6 @@ internal static class LightingHandler
     }
 
     // ── set_skybox ─────────────────────────────────────────────────────────
-    // Ported from LightingToolHandlers.SetSkyBox
 
     private static object SetSkybox( JsonElement args )
     {
