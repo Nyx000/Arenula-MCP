@@ -21,14 +21,17 @@ internal static class NavmeshHandler
         {
             return action switch
             {
-                "create_agent" => CreateAgent( args ),
-                "create_area"  => CreateArea( args ),
-                "create_link"  => CreateLink( args ),
-                "generate"     => Generate( args ),
-                "get_status"   => GetStatus( args ),
-                "query_path"   => QueryPath( args ),
+                "create_agent"         => CreateAgent( args ),
+                "create_area"          => CreateArea( args ),
+                "create_link"          => CreateLink( args ),
+                "generate"             => Generate( args ),
+                "generate_tile"        => GenerateTile( args ),
+                "unload_tile"          => UnloadTile( args ),
+                "set_defer_generation" => SetDeferGeneration( args ),
+                "get_status"           => GetStatus( args ),
+                "query_path"           => QueryPath( args ),
                 _ => HandlerBase.Error( $"Unknown action '{action}'", action,
-                    "Valid actions: create_agent, create_area, create_link, generate, get_status, query_path" )
+                    "Valid actions: create_agent, create_area, create_link, generate, generate_tile, unload_tile, set_defer_generation, get_status, query_path" )
             };
         }
         catch ( Exception ex )
@@ -220,11 +223,16 @@ internal static class NavmeshHandler
             .SelectMany( go => go.Components.GetAll().OfType<NavMeshLink>() )
             .ToList();
 
+        var navMesh = scene.NavMesh;
+
         return HandlerBase.Success( new
         {
             agent_count = agents.Count,
             area_count = areas.Count,
             link_count = links.Count,
+            is_generating = navMesh?.IsGenerating ?? false,
+            is_dirty = navMesh?.IsDirty ?? false,
+            defer_generation = navMesh?.DeferGeneration ?? false,
             agents = agents.Select( a => new
             {
                 id = a.GameObject.Id.ToString(),
@@ -233,6 +241,93 @@ internal static class NavmeshHandler
                 position = HandlerBase.V3( a.GameObject.WorldPosition )
             } )
         } );
+    }
+
+    // ── generate_tile ────────────────────────────────────────────────
+    // NEW 26.04.15 — on-demand tile generation at a world position or bounds.
+
+    private static object GenerateTile( JsonElement args )
+    {
+        var scene = SceneHelpers.ResolveScene();
+        if ( scene == null )
+            return HandlerBase.Error( "No active scene.", "generate_tile" );
+
+        var navMesh = scene.NavMesh;
+        if ( navMesh == null )
+            return HandlerBase.Error( "No NavMesh component in the scene.", "generate_tile" );
+
+        var posStr = HandlerBase.GetString( args, "position" );
+        var minStr = HandlerBase.GetString( args, "bounds_min" );
+        var maxStr = HandlerBase.GetString( args, "bounds_max" );
+
+        if ( !string.IsNullOrEmpty( minStr ) && !string.IsNullOrEmpty( maxStr ) )
+        {
+            var min = HandlerBase.ParseVector3( minStr );
+            var max = HandlerBase.ParseVector3( maxStr );
+            var bounds = new BBox( min, max );
+            navMesh.RequestTilesGeneration( bounds );
+            return HandlerBase.Confirm( $"Queued navmesh tile generation for bounds ({min} → {max})." );
+        }
+
+        if ( string.IsNullOrEmpty( posStr ) )
+            return HandlerBase.Error( "Provide 'position' (x,y,z) or 'bounds_min'+'bounds_max' for the tiles to generate.", "generate_tile" );
+
+        var position = HandlerBase.ParseVector3( posStr );
+        navMesh.RequestTileGeneration( position );
+        return HandlerBase.Confirm( $"Queued navmesh tile generation at {position}." );
+    }
+
+    // ── unload_tile ──────────────────────────────────────────────────
+    // NEW 26.04.15 — remove navmesh tiles at a position or bounds.
+
+    private static object UnloadTile( JsonElement args )
+    {
+        var scene = SceneHelpers.ResolveScene();
+        if ( scene == null )
+            return HandlerBase.Error( "No active scene.", "unload_tile" );
+
+        var navMesh = scene.NavMesh;
+        if ( navMesh == null )
+            return HandlerBase.Error( "No NavMesh component in the scene.", "unload_tile" );
+
+        var posStr = HandlerBase.GetString( args, "position" );
+        var minStr = HandlerBase.GetString( args, "bounds_min" );
+        var maxStr = HandlerBase.GetString( args, "bounds_max" );
+
+        if ( !string.IsNullOrEmpty( minStr ) && !string.IsNullOrEmpty( maxStr ) )
+        {
+            var min = HandlerBase.ParseVector3( minStr );
+            var max = HandlerBase.ParseVector3( maxStr );
+            var bounds = new BBox( min, max );
+            navMesh.UnloadTiles( bounds );
+            return HandlerBase.Confirm( $"Unloaded navmesh tiles in bounds ({min} → {max})." );
+        }
+
+        if ( string.IsNullOrEmpty( posStr ) )
+            return HandlerBase.Error( "Provide 'position' (x,y,z) or 'bounds_min'+'bounds_max' for the tiles to unload.", "unload_tile" );
+
+        var position = HandlerBase.ParseVector3( posStr );
+        navMesh.UnloadTile( position );
+        return HandlerBase.Confirm( $"Unloaded navmesh tile at {position}." );
+    }
+
+    // ── set_defer_generation ─────────────────────────────────────────
+    // NEW 26.04.15 — toggle deferred navmesh generation for open-world games.
+
+    private static object SetDeferGeneration( JsonElement args )
+    {
+        var scene = SceneHelpers.ResolveScene();
+        if ( scene == null )
+            return HandlerBase.Error( "No active scene.", "set_defer_generation" );
+
+        var navMesh = scene.NavMesh;
+        if ( navMesh == null )
+            return HandlerBase.Error( "No NavMesh component in the scene.", "set_defer_generation" );
+
+        var enabled = HandlerBase.GetBool( args, "enabled", true );
+        navMesh.DeferGeneration = enabled;
+
+        return HandlerBase.Confirm( $"NavMesh DeferGeneration set to {enabled}. Tiles {( enabled ? "will NOT auto-generate on load — use generate_tile to generate on demand" : "will auto-generate on scene load" )}." );
     }
 
     // ── query_path ────────────────────────────────────────────────────
