@@ -674,10 +674,34 @@ internal static class ComponentHandler
 
         if ( el.ValueKind == JsonValueKind.Object )
         {
-            // Route through the engine's own deserializer for full mode coverage
-            // (Curve, CurveRange) — those reference Sandbox.Curve/CurveRange
-            // types we don't want to re-serialize by hand.
-            return DeserializeParticleFloatJson( el.GetRawText() );
+            // Explicit property parsing — covers Constant + Range modes plus
+            // Evaluation control (Life / Frame / Seed / Particle). Bypasses
+            // ParticleFloat.JsonRead which uses an unknown internal schema and
+            // empirically returned zeros for ConstantA/ConstantB even when
+            // those fields were set in the input JSON.
+            //
+            // Curve / CurveRange modes still need the engine's deserializer
+            // (their CurveA/CurveB Curve structs are non-trivial to construct
+            // by hand) — they fall through to JsonRead.
+            if ( el.TryGetProperty( "Type", out var typeEl ) )
+            {
+                var typeStr = typeEl.GetString();
+                if ( typeStr.Equals( "Curve", StringComparison.OrdinalIgnoreCase ) ||
+                     typeStr.Equals( "CurveRange", StringComparison.OrdinalIgnoreCase ) )
+                    return DeserializeParticleFloatJson( el.GetRawText() );
+            }
+
+            var pf = new ParticleFloat();
+            if ( el.TryGetProperty( "Type", out var t ) )
+                pf.Type = (ParticleFloat.ValueType)Enum.Parse(
+                    typeof( ParticleFloat.ValueType ), t.GetString(), ignoreCase: true );
+            if ( el.TryGetProperty( "Evaluation", out var ev ) )
+                pf.Evaluation = (ParticleFloat.EvaluationType)Enum.Parse(
+                    typeof( ParticleFloat.EvaluationType ), ev.GetString(), ignoreCase: true );
+            if ( el.TryGetProperty( "ConstantValue", out var cv ) ) pf.ConstantValue = cv.GetSingle();
+            if ( el.TryGetProperty( "ConstantA",     out var ca ) ) pf.ConstantA     = ca.GetSingle();
+            if ( el.TryGetProperty( "ConstantB",     out var cb ) ) pf.ConstantB     = cb.GetSingle();
+            return pf;
         }
 
         throw new ArgumentException(
