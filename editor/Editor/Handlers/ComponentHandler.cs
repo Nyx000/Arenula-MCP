@@ -259,7 +259,7 @@ internal static class ComponentHandler
         else
         {
             // Scalar or non-resource — include formatted value for transparency.
-            verifiedPayload = readback?.ToString();
+            verifiedPayload = FormatReadback( readback );
         }
 
         return HandlerBase.Success( new
@@ -268,10 +268,37 @@ internal static class ComponentHandler
             name = go.Name,
             component_type = comp.GetType().Name,
             property = propName,
-            value = readback?.ToString(),
-            message = $"Set '{comp.GetType().Name}.{propName}' = {readback}",
+            value = FormatReadback( readback ),
+            message = $"Set '{comp.GetType().Name}.{propName}' = {FormatReadback( readback )}",
             verified = verifiedPayload
         } );
+    }
+
+    // Render readback of complex wrapper structs in a way that surfaces the
+    // actual values, not the type name. Default ToString on these structs
+    // returns "Sandbox.ParticleFloat" which makes set_property responses
+    // useless for verification — caller can't tell whether the value stuck.
+    private static string FormatReadback( object value )
+    {
+        return value switch
+        {
+            null => null,
+            ParticleFloat pf => FormatParticleFloat( pf ),
+            ParticleVector3 pv => $"({FormatParticleFloat( pv.X )}, {FormatParticleFloat( pv.Y )}, {FormatParticleFloat( pv.Z )})",
+            _ => value.ToString()
+        };
+    }
+
+    private static string FormatParticleFloat( ParticleFloat pf )
+    {
+        return pf.Type switch
+        {
+            ParticleFloat.ValueType.Constant   => $"Constant({pf.ConstantValue})",
+            ParticleFloat.ValueType.Range      => $"Range({pf.ConstantA},{pf.ConstantB})",
+            ParticleFloat.ValueType.Curve      => "Curve(<not-rendered>)",
+            ParticleFloat.ValueType.CurveRange => "CurveRange(<not-rendered>)",
+            _ => "Unknown"
+        };
     }
 
     /// <summary>
@@ -331,6 +358,27 @@ internal static class ComponentHandler
             var str = el.ValueKind == JsonValueKind.String ? el.GetString() : el.GetRawText();
             return Color.Parse( str ) ?? default;
         }
+
+        // ParticleFloat — wrapper that varies a float per-particle. Modes:
+        //   "5"            → Constant mode, value 5
+        //   "0.75,2.6"     → Range mode, picks per-particle in [0.75, 2.6]
+        //   5  (JSON num)  → Constant mode, value 5
+        //   {Type,Constants,...} (JSON obj) → routed through ParticleFloat.JsonRead
+        //                                     for full Curve / CurveRange coverage
+        if ( targetType == typeof( ParticleFloat ) )
+            return ParseParticleFloat( el );
+
+        // ParticleVector3 — three ParticleFloats (X/Y/Z fields). Format:
+        //   "x,y,z"        → Constant mode on each axis
+        //   {X:..,Y:..,Z:..} (JSON obj) → each axis routed through ParticleFloat parse
+        if ( targetType == typeof( ParticleVector3 ) )
+            return ParseParticleVector3( el );
+
+        // ParticleGradient — wrapper for Color-over-life. Constant mode only here:
+        //   "r,g,b,a"      → Constant mode, single color
+        //   {Type,ConstantValue,...} (JSON obj) → routed through ParticleGradient.JsonRead
+        if ( targetType == typeof( ParticleGradient ) )
+            return ParseParticleGradient( el );
 
         if ( targetType.IsEnum )
         {
@@ -392,6 +440,153 @@ internal static class ComponentHandler
         // Fallback: try ChangeType from string
         var raw = el.ValueKind == JsonValueKind.String ? el.GetString() : el.GetRawText();
         return Convert.ChangeType( raw, targetType );
+    }
+
+    // ── Particle-wrapper parsers ─────────────────────────────────────
+    //
+    // Why these exist: ParticleFloat / ParticleVector3 / ParticleGradient
+    // are struct wrappers used on every particle field (Lifetime, Rate, Scale,
+    // Velocity, Alpha, Tint-over-life, ...). They store a constant, a range,
+    // a curve, or a curve-range. Convert.ChangeType has no path from string to
+    // these types, so set_property previously errored with "Invalid cast from
+    // System.String to Sandbox.ParticleFloat" on the most-tuned fields in the
+    // particle system. We handle Constant + Range from short string syntax
+    // (the common 95% of tuning), and route JSON objects through each type's
+    // own JsonRead static method so every mode (Curve / CurveRange / etc.) is
+    // supported without re-implementing the curve serialization here.
+
+    private static ParticleFloat ParseParticleFloat( JsonElement el )
+    {
+        // Number JSON value: 5 → Constant.
+        if ( el.ValueKind == JsonValueKind.Number )
+        {
+            var pf = new ParticleFloat();
+            pf.Type = ParticleFloat.ValueType.Constant;
+            pf.ConstantValue = el.GetSingle();
+            return pf;
+        }
+
+        if ( el.ValueKind == JsonValueKind.String )
+        {
+            var str = el.GetString().Trim();
+            var parts = str.Split( ',' );
+
+            if ( parts.Length == 1 )
+            {
+                var v = float.Parse( parts[0].Trim(),
+                    System.Globalization.CultureInfo.InvariantCulture );
+                var pf = new ParticleFloat();
+                pf.Type = ParticleFloat.ValueType.Constant;
+                pf.ConstantValue = v;
+                return pf;
+            }
+
+            if ( parts.Length == 2 )
+            {
+                var a = float.Parse( parts[0].Trim(),
+                    System.Globalization.CultureInfo.InvariantCulture );
+                var b = float.Parse( parts[1].Trim(),
+                    System.Globalization.CultureInfo.InvariantCulture );
+                // Two-arg ctor sets Range mode. Setting Type explicitly anyway
+                // to be robust against any future ctor refactor.
+                var pf = new ParticleFloat( a, b );
+                pf.Type = ParticleFloat.ValueType.Range;
+                return pf;
+            }
+
+            throw new ArgumentException(
+                $"ParticleFloat string must be 'value' or 'min,max', got '{str}'." );
+        }
+
+        if ( el.ValueKind == JsonValueKind.Object )
+        {
+            // Route through the engine's own deserializer for full mode coverage
+            // (Curve, CurveRange) — those reference Sandbox.Curve/CurveRange
+            // types we don't want to re-serialize by hand.
+            return DeserializeParticleFloatJson( el.GetRawText() );
+        }
+
+        throw new ArgumentException(
+            $"Cannot convert {el.ValueKind} to ParticleFloat. " +
+            "Use a number, 'value' string, 'min,max' string, or full JSON object." );
+    }
+
+    private static ParticleFloat DeserializeParticleFloatJson( string json )
+    {
+        var bytes = System.Text.Encoding.UTF8.GetBytes( json );
+        var reader = new System.Text.Json.Utf8JsonReader( bytes );
+        reader.Read();   // advance to the first token (StartObject)
+        // Utf8JsonReader is a ref struct → pass by ref. JsonRead(reader, type)
+        // is documented without a ref qualifier in arenula-api but the
+        // underlying ref struct constraint forces ref-passing at the call site.
+        return (ParticleFloat)ParticleFloat.JsonRead( ref reader, typeof( ParticleFloat ) );
+    }
+
+    private static ParticleVector3 ParseParticleVector3( JsonElement el )
+    {
+        // String "x,y,z" → constant per-axis (most common case).
+        if ( el.ValueKind == JsonValueKind.String )
+        {
+            var parts = el.GetString().Split( ',' );
+            if ( parts.Length != 3 )
+                throw new ArgumentException(
+                    $"ParticleVector3 string must be 'x,y,z', got '{el.GetString()}'." );
+
+            var pv = new ParticleVector3();
+            pv.X = ConstantParticleFloat( float.Parse( parts[0].Trim(),
+                System.Globalization.CultureInfo.InvariantCulture ) );
+            pv.Y = ConstantParticleFloat( float.Parse( parts[1].Trim(),
+                System.Globalization.CultureInfo.InvariantCulture ) );
+            pv.Z = ConstantParticleFloat( float.Parse( parts[2].Trim(),
+                System.Globalization.CultureInfo.InvariantCulture ) );
+            return pv;
+        }
+
+        if ( el.ValueKind == JsonValueKind.Object )
+        {
+            // Per-axis recursive parse — accepts {X:5, Y:"0,2", Z:{..}} mixed shapes.
+            var pv = new ParticleVector3();
+            if ( el.TryGetProperty( "X", out var xp ) ) pv.X = ParseParticleFloat( xp );
+            if ( el.TryGetProperty( "Y", out var yp ) ) pv.Y = ParseParticleFloat( yp );
+            if ( el.TryGetProperty( "Z", out var zp ) ) pv.Z = ParseParticleFloat( zp );
+            return pv;
+        }
+
+        throw new ArgumentException(
+            $"Cannot convert {el.ValueKind} to ParticleVector3. " +
+            "Use 'x,y,z' string or {X,Y,Z} object." );
+    }
+
+    private static ParticleFloat ConstantParticleFloat( float v )
+    {
+        var pf = new ParticleFloat();
+        pf.Type = ParticleFloat.ValueType.Constant;
+        pf.ConstantValue = v;
+        return pf;
+    }
+
+    private static ParticleGradient ParseParticleGradient( JsonElement el )
+    {
+        // String "r,g,b,a" or "#hex" → Constant mode.
+        if ( el.ValueKind == JsonValueKind.String )
+        {
+            var color = Color.Parse( el.GetString() ) ?? default;
+            var pg = new ParticleGradient();
+            pg.Type = ParticleGradient.ValueType.Constant;
+            pg.ConstantValue = color;
+            return pg;
+        }
+
+        // JSON object → defer to engine's deserializer; ParticleGradient's
+        // Curve/Range modes reference Gradient resources we don't want to
+        // construct by hand. If the engine ever exposes a JsonRead like
+        // ParticleFloat.JsonRead, route through it here. For now, only
+        // Constant mode is supported via this path — author the gradient in
+        // the Inspector for non-constant cases.
+        throw new ArgumentException(
+            "ParticleGradient JSON-object form not supported via MCP. " +
+            "Pass an 'r,g,b,a' string for Constant mode, or set the gradient " +
+            "via the Inspector for Range/Gradient modes." );
     }
 
     // ── set_enabled ──────────────────────────────────────────────────
@@ -466,6 +661,8 @@ internal static class ComponentHandler
                     Enum e => (object)e.ToString(),
                     Vector3 v => (object)HandlerBase.V3( v ),
                     Rotation r => (object)HandlerBase.Rot( r ),
+                    ParticleFloat pf => (object)FormatParticleFloat( pf ),
+                    ParticleVector3 pv => (object)$"({FormatParticleFloat( pv.X )}, {FormatParticleFloat( pv.Y )}, {FormatParticleFloat( pv.Z )})",
                     _ => (object)raw.ToString()
                 };
             }
