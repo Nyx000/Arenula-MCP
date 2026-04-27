@@ -751,26 +751,67 @@ internal static class ComponentHandler
 
     private static ParticleGradient ParseParticleGradient( JsonElement el )
     {
-        // String "r,g,b,a" or "#hex" → Constant mode.
         if ( el.ValueKind == JsonValueKind.String )
         {
-            var color = Color.Parse( el.GetString() ) ?? default;
+            var s = el.GetString().Trim();
+
+            // JSON-object form passed as string (same pattern as PF/PV3).
+            if ( s.StartsWith( "{" ) )
+            {
+                using var doc = JsonDocument.Parse( s );
+                return ParseParticleGradient( doc.RootElement );
+            }
+
+            // Range form: "r1,g1,b1,a1;r2,g2,b2,a2" — picks per-particle
+            // (or per-frame, or over-life depending on Evaluation).
+            if ( s.Contains( ';' ) )
+            {
+                var halves = s.Split( ';' );
+                if ( halves.Length != 2 )
+                    throw new ArgumentException(
+                        $"ParticleGradient Range form must be 'r1,g1,b1,a1;r2,g2,b2,a2', got '{s}'." );
+                var ca = Color.Parse( halves[0].Trim() ) ?? default;
+                var cb = Color.Parse( halves[1].Trim() ) ?? default;
+                var pgr = new ParticleGradient();
+                pgr.Type = ParticleGradient.ValueType.Range;
+                pgr.ConstantA = ca;
+                pgr.ConstantB = cb;
+                return pgr;
+            }
+
+            // Constant form: "r,g,b,a" or "#hex".
+            var color = Color.Parse( s ) ?? default;
             var pg = new ParticleGradient();
             pg.Type = ParticleGradient.ValueType.Constant;
             pg.ConstantValue = color;
             return pg;
         }
 
-        // JSON object → defer to engine's deserializer; ParticleGradient's
-        // Curve/Range modes reference Gradient resources we don't want to
-        // construct by hand. If the engine ever exposes a JsonRead like
-        // ParticleFloat.JsonRead, route through it here. For now, only
-        // Constant mode is supported via this path — author the gradient in
-        // the Inspector for non-constant cases.
+        if ( el.ValueKind == JsonValueKind.Object )
+        {
+            // Full control: {Type, Evaluation, ConstantA, ConstantB, ConstantValue}.
+            // Lets caller specify Range mode + Life/Particle/Frame evaluation
+            // (e.g. fire color cooling over particle life via Range+Life).
+            var pg = new ParticleGradient();
+            if ( el.TryGetProperty( "Type", out var t ) )
+                pg.Type = (ParticleGradient.ValueType)Enum.Parse(
+                    typeof( ParticleGradient.ValueType ), t.GetString(), ignoreCase: true );
+            if ( el.TryGetProperty( "Evaluation", out var ev ) )
+                pg.Evaluation = (ParticleGradient.EvaluationType)Enum.Parse(
+                    typeof( ParticleGradient.EvaluationType ), ev.GetString(), ignoreCase: true );
+            if ( el.TryGetProperty( "ConstantValue", out var cv ) )
+                pg.ConstantValue = Color.Parse( cv.GetString() ) ?? default;
+            if ( el.TryGetProperty( "ConstantA", out var ca ) )
+                pg.ConstantA = Color.Parse( ca.GetString() ) ?? default;
+            if ( el.TryGetProperty( "ConstantB", out var cb ) )
+                pg.ConstantB = Color.Parse( cb.GetString() ) ?? default;
+            return pg;
+        }
+
         throw new ArgumentException(
-            "ParticleGradient JSON-object form not supported via MCP. " +
-            "Pass an 'r,g,b,a' string for Constant mode, or set the gradient " +
-            "via the Inspector for Range/Gradient modes." );
+            $"Cannot convert {el.ValueKind} to ParticleGradient. Use one of: " +
+            "'r,g,b,a' (Constant), 'r1,g1,b1,a1;r2,g2,b2,a2' (Range), " +
+            "or {Type,ConstantA,ConstantB,Evaluation} JSON object." );
     }
 
     // ── set_enabled ──────────────────────────────────────────────────
