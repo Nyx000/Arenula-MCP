@@ -252,7 +252,7 @@ internal static class EditorHandler
         }
         bool fileExists = !string.IsNullOrEmpty( scenePath ) && System.IO.File.Exists( scenePath );
         long fileSize = fileExists ? new System.IO.FileInfo( scenePath ).Length : 0;
-        bool noUnsavedChanges = scene != null && !scene.HasUnsavedChanges;
+        bool noUnsavedChanges = scene != null && !scene.Editor.HasUnsavedChanges;
 
         if ( !fileExists || fileSize == 0 )
             return HandlerBase.Error(
@@ -299,7 +299,7 @@ internal static class EditorHandler
             string scenePath = asset?.AbsolutePath;
             bool fileExists = !string.IsNullOrEmpty( scenePath ) && System.IO.File.Exists( scenePath );
             long fileSize = fileExists ? new System.IO.FileInfo( scenePath ).Length : 0;
-            bool noUnsavedChanges = scene != null && !scene.HasUnsavedChanges;
+            bool noUnsavedChanges = scene != null && !scene.Editor.HasUnsavedChanges;
 
             return HandlerBase.Success( new
             {
