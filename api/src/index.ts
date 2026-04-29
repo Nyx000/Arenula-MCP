@@ -12,6 +12,7 @@ import { registerUpdateSource } from './tools/update-source.js'
 import { registerSearchPackages } from './tools/search-packages.js'
 import { registerGetPackage } from './tools/get-package.js'
 import { registerTextures } from './tools/textures.js'
+import { registerModels } from './tools/models.js'
 
 async function main() {
   console.error('[arenula-api] Starting S&box API MCP Server...')
@@ -40,6 +41,9 @@ async function main() {
 
   // Texture fetcher (ambientCG + Poly Haven - live API)
   registerTextures(server)
+
+  // Model fetcher (Poly Haven - live API; fallback when sbox.game cloud lacks the asset)
+  registerModels(server)
 
   // Connect via stdio
   const transport = new StdioServerTransport()
