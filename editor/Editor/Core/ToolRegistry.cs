@@ -193,7 +193,7 @@ internal static class ToolRegistry
             type = "object",
             properties = new Dictionary<string, object>
             {
-                ["action"] = new { type = "string", description = "The operation to perform.", @enum = new[] { "select", "get_selected", "set_selected", "clear_selection", "frame_selection", "get_play_state", "start_play", "stop_play", "get_log", "save_scene", "save_scene_as", "undo", "redo", "console_list", "console_run", "open_code_file", "get_preferences", "set_preference" } },
+                ["action"] = new { type = "string", description = "The operation to perform.", @enum = new[] { "select", "get_selected", "set_selected", "clear_selection", "frame_selection", "get_play_state", "start_play", "stop_play", "get_log", "save_scene", "save_scene_as", "save_all", "undo", "redo", "console_list", "console_run", "open_code_file", "get_preferences", "set_preference" } },
                 ["id"] = new { type = "string", description = "GameObject GUID. Used by: select, frame_selection." },
                 ["ids"] = new { type = "string", description = "Comma-separated GUIDs. Required for: set_selected." },
                 ["path"] = new { type = "string", description = "File or scene path. Required for: save_scene_as, open_code_file." },

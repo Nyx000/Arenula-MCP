@@ -11,7 +11,7 @@ namespace Arenula;
 /// <summary>
 /// editor tool (non-console actions): select, get_selected, set_selected, clear_selection,
 /// frame_selection, get_play_state, start_play, stop_play, get_log, save_scene,
-/// save_scene_as, undo, redo.
+/// save_scene_as, save_all, undo, redo.
 /// Console actions (console_list, console_run) are handled by ConsoleHandler.
 /// New actions: open_code_file, get_preferences, set_preference.
 /// </summary>
@@ -45,6 +45,7 @@ internal static class EditorHandler
                 "get_log"          => GetLog( args ),
                 "save_scene"       => SaveScene(),
                 "save_scene_as"    => SaveSceneAs( args ),
+                "save_all"         => SaveAll(),
                 "undo"             => Undo(),
                 "redo"             => Redo(),
                 "open_code_file"   => OpenCodeFile( args ),
@@ -53,7 +54,7 @@ internal static class EditorHandler
                 "console_list"     => ConsoleHandler.Handle( action, args ),
                 "console_run"      => ConsoleHandler.Handle( action, args ),
                 _ => HandlerBase.Error( $"Unknown action '{action}'", action,
-                    "Valid actions: select, get_selected, set_selected, clear_selection, frame_selection, get_play_state, start_play, stop_play, get_log, save_scene, save_scene_as, undo, redo, open_code_file, get_preferences, set_preference" )
+                    "Valid actions: select, get_selected, set_selected, clear_selection, frame_selection, get_play_state, start_play, stop_play, get_log, save_scene, save_scene_as, save_all, undo, redo, open_code_file, get_preferences, set_preference" )
             };
         }
         catch ( Exception ex )
@@ -317,6 +318,109 @@ internal static class EditorHandler
         }
 
         return HandlerBase.Error( "Save As method not available on this session type.", "save_scene_as" );
+    }
+
+    // ── save_all ─────────────────────────────────────────────────────────
+    //
+    // Mirrors the editor's File → Save All menu item (Ctrl+Alt+Shift+S), which
+    // calls EditorScene.SaveAllSessions in engine: foreach session in
+    // SceneEditorSession.All → session.Save(false). save_scene only flushes
+    // the active session, leaving prefab-edit sessions and other open scenes
+    // dirty after MCP batches that touch them. This action covers that gap.
+
+    private static object SaveAll()
+    {
+        var dirty = SceneEditorSession.All?
+            .Where( s => s != null && s.HasUnsavedChanges )
+            .ToList() ?? new List<SceneEditorSession>();
+
+        if ( dirty.Count == 0 )
+        {
+            return HandlerBase.Success( new
+            {
+                message = "No sessions with unsaved changes.",
+                saved_count = 0,
+                failure_count = 0,
+                saved = Array.Empty<object>(),
+                failures = Array.Empty<object>()
+            } );
+        }
+
+        var saved = new List<object>();
+        var failures = new List<object>();
+
+        foreach ( var session in dirty )
+        {
+            var sceneName = session.Scene?.Name ?? "(unnamed)";
+            var isPrefab = session.IsPrefabSession;
+
+            try
+            {
+                session.Save( false );
+
+                // Per-session post-condition mirrors save_scene: file exists on
+                // disk, non-zero size, dirty flag cleared. Any of these missing
+                // means the engine silently dropped the save.
+                var scene = session.Scene;
+                string resourcePath = scene?.Source?.ResourcePath;
+                string scenePath = null;
+                long fileSize = 0;
+                bool fileExists = false;
+
+                if ( !string.IsNullOrEmpty( resourcePath ) )
+                {
+                    var asset = AssetSystem.FindByPath( resourcePath );
+                    scenePath = asset?.AbsolutePath;
+                    fileExists = !string.IsNullOrEmpty( scenePath ) && System.IO.File.Exists( scenePath );
+                    fileSize = fileExists ? new System.IO.FileInfo( scenePath ).Length : 0;
+                }
+
+                bool stillDirty = session.HasUnsavedChanges;
+
+                if ( !fileExists || fileSize == 0 || stillDirty )
+                {
+                    failures.Add( new
+                    {
+                        name = sceneName,
+                        isPrefabSession = isPrefab,
+                        file = scenePath,
+                        reason = stillDirty ? "still dirty after save"
+                            : !fileExists ? "file missing"
+                            : "file empty"
+                    } );
+                }
+                else
+                {
+                    saved.Add( new
+                    {
+                        name = sceneName,
+                        isPrefabSession = isPrefab,
+                        file = scenePath,
+                        size_bytes = fileSize
+                    } );
+                }
+            }
+            catch ( Exception ex )
+            {
+                failures.Add( new
+                {
+                    name = sceneName,
+                    isPrefabSession = isPrefab,
+                    error = ex.Message
+                } );
+            }
+        }
+
+        return HandlerBase.Success( new
+        {
+            message = failures.Count > 0
+                ? $"Saved {saved.Count}/{dirty.Count} session(s); {failures.Count} failed. Check failures[] and call get_log for engine errors."
+                : $"Saved {saved.Count} session(s).",
+            saved_count = saved.Count,
+            failure_count = failures.Count,
+            saved,
+            failures
+        } );
     }
 
     // ── undo ─────────────────────────────────────────────────────────────
